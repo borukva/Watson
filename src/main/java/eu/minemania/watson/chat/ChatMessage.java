@@ -64,7 +64,7 @@ public class ChatMessage
     public static void sendToLocalChat(MutableComponent inputmessage, boolean watsonMessage)
     {
         MutableComponent message = Configs.Highlights.USE_CHAT_HIGHLIGHTS.getBooleanValue() ? Highlight.setHighlightChatMessage("chat.type.text", inputmessage, watsonMessage) : inputmessage;
-        Minecraft.getInstance().gui.getChat().addMessage(message);
+        Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(message);
     }
 
     public static void sendToLocalChat(ChatFormatting color, ChatFormatting style, String message, boolean watsonMessage)

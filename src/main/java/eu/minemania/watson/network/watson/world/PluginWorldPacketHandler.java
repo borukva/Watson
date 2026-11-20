@@ -8,12 +8,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class PluginWorldPacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("watson","world");
+    public static final Identifier CHANNEL = Identifier.fromNamespaceAndPath("watson","world");
     private boolean registered;
+    private int failures = 0;
 
     private final static PluginWorldPacketHandler<PluginWorldPacket.Payload> INSTANCE = new PluginWorldPacketHandler<>()
     {
@@ -30,28 +31,41 @@ public abstract class PluginWorldPacketHandler<T extends CustomPacketPayload> im
     }
 
     @Override
-    public ResourceLocation getPayloadChannel()
+    public Identifier getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(ResourceLocation channel)
+    public void tickFailures()
+    {
+        ++this.failures;
+    }
+
+    @Override
+    public boolean checkFailures()
+    {
+        return this.failures <= this.maxFailures();
+    }
+
+    @Override
+    public boolean isPlayRegistered(Identifier channel)
     {
         return registered;
     }
 
     @Override
-    public void setPlayRegistered(ResourceLocation channel)
+    public void setPlayRegistered(Identifier channel)
     {
         if (channel.equals(this.getPayloadChannel()))
         {
             this.registered = true;
+            this.failures = 0;
         }
     }
 
     @Override
-    public void reset(ResourceLocation channel)
+    public void reset(Identifier channel)
     {
         if (!channel.equals(CHANNEL))
         {

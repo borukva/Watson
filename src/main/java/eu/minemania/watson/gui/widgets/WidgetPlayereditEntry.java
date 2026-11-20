@@ -1,7 +1,6 @@
 package eu.minemania.watson.gui.widgets;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
 import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.db.PlayereditSet;
 import eu.minemania.watson.gui.GuiEdits;
@@ -13,7 +12,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.GuiGraphics;
+import fi.dy.masa.malilib.render.GuiContext;
 
 public class WidgetPlayereditEntry extends WidgetListEntryBase<PlayereditSet>
 {
@@ -61,39 +60,35 @@ public class WidgetPlayereditEntry extends WidgetListEntryBase<PlayereditSet>
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
+    public void render(GuiContext drawContext, int mouseX, int mouseY, boolean selected)
     {
-        RenderUtils.color(1f, 1f, 1f, 1f);
 
         if (selected || this.isMouseOver(mouseX, mouseY))
         {
-            RenderUtils.drawRect(this.x, this.y, this.width, this.height, 0x70FFFFFF);
+            RenderUtils.drawRect(drawContext, this.x, this.y, this.width, this.height, 0x70FFFFFF);
         }
         else if (this.isOdd)
         {
-            RenderUtils.drawRect(this.x, this.y, this.width, this.height, 0x20FFFFFF);
+            RenderUtils.drawRect(drawContext, this.x, this.y, this.width, this.height, 0x20FFFFFF);
         }
         else
         {
-            RenderUtils.drawRect(this.x, this.y, this.width, this.height, 0x50FFFFFF);
+            RenderUtils.drawRect(drawContext, this.x, this.y, this.width, this.height, 0x50FFFFFF);
         }
 
         String playerName = this.entry.getPlayer();
-        this.drawString(this.x + 20, this.y + 7, 0xFFFFFFFF, playerName, drawContext);
+        this.drawString(drawContext, this.x + 20, this.y + 7, 0xFFFFFFFF, playerName);
 
-        RenderUtils.color(1f, 1f, 1f, 1f);
-        RenderSystem.disableBlend();
 
         String text = StringUtils.translate("watson.gui.button.playeredit.hover", this.entry.getBlockEditCount());
 
-        this.drawSubWidgets(mouseX, mouseY, drawContext);
+        this.drawSubWidgets(drawContext, mouseX, mouseY);
 
         if (GuiBase.isMouseOver(mouseX, mouseY, this.x, this.y, this.buttonsStartX - 12, this.height))
         {
-            RenderUtils.drawHoverText(mouseX, mouseY, ImmutableList.of(text), drawContext);
+            RenderUtils.drawHoverText(drawContext, mouseX, mouseY, ImmutableList.of(text));
         }
 
-        RenderUtils.disableDiffuseLighting();
         //RenderSystem.disableLighting();
     }
 

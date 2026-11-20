@@ -3,14 +3,14 @@ package eu.minemania.watson.gui;
 import eu.minemania.watson.Reference;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
 import fi.dy.masa.malilib.render.RenderUtils;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import fi.dy.masa.malilib.render.GuiContext;
+import net.minecraft.resources.Identifier;
 
 public enum ButtonIcons implements IGuiIcon
 {
     CONFIGURATION(0, 0, 14, 14);
 
-    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/gui_widgets.png");
+    public static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/gui_widgets.png");
 
     private final int u;
     private final int v;
@@ -50,7 +50,7 @@ public enum ButtonIcons implements IGuiIcon
     }
 
     @Override
-    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected, GuiGraphics drawContext)
+    public void renderAt(GuiContext drawContext, int x, int y, float zLevel, boolean enabled, boolean selected)
     {
         int u = this.u;
 
@@ -64,11 +64,11 @@ public enum ButtonIcons implements IGuiIcon
             u += this.w;
         }
 
-        RenderUtils.drawTexturedRect(x, y, u, this.v, this.w, this.h, zLevel);
+        RenderUtils.drawTexturedRect(drawContext, TEXTURE, x, y, u, this.v, this.w, this.h, zLevel);
     }
 
     @Override
-    public ResourceLocation getTexture()
+    public Identifier getTexture()
     {
         return TEXTURE;
     }

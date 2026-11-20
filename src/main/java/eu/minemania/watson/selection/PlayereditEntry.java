@@ -3,7 +3,7 @@ package eu.minemania.watson.selection;
 import java.util.List;
 import net.minecraft.world.item.ItemStack;
 import eu.minemania.watson.db.BlockEdit;
-import fi.dy.masa.malilib.util.ItemType;
+import fi.dy.masa.malilib.util.data.ItemType;
 
 public class PlayereditEntry
 {

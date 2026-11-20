@@ -1,10 +1,6 @@
 package eu.minemania.watson.selection;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
 import eu.minemania.watson.client.Teleport;
 import eu.minemania.watson.config.Plugins;
 import eu.minemania.watson.db.BlockEdit;
@@ -12,7 +8,9 @@ import eu.minemania.watson.db.BlockEditComparator;
 import eu.minemania.watson.db.BlockEditSet;
 import eu.minemania.watson.db.PlayereditSet;
 import eu.minemania.watson.render.RenderUtils;
+import fi.dy.masa.malilib.render.RenderContext;
 import fi.dy.masa.malilib.util.WorldUtils;
+import fi.dy.masa.malilib.util.data.Color4f;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.config.Configs;
@@ -35,6 +33,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class EditSelection
 {
+    private static final Color4f SELECTION_COLOR = new Color4f(1f, 0f, 1f, 1f);
+
     protected boolean _selectionChanged;
     protected BlockEdit _selection;
     protected HashMap<String, Object> _variables = new HashMap<>();
@@ -131,47 +131,33 @@ public class EditSelection
     {
         if (_selection != null && Configs.Edits.SELECTION_SHOWN.getBooleanValue() && (DataManager.getWorldPlugin().isEmpty() || DataManager.getWorldPlugin().equals(_selection.world)))
         {
-            Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder buffer = RenderUtils.startDrawingLines(tesselator);
-            MeshData builtBuffer;
-            RenderSystem.lineWidth(4.0F);
+            RenderContext ctx = RenderUtils.startDrawingLines("selection");
+            BufferBuilder buffer = ctx.getBuilder();
+            RenderUtils.setLineWidth(4.0F);
 
             final float halfSize = 0.3f;
             float x = _selection.x + 0.5f;
             float y = _selection.y + 0.5f;
             float z = _selection.z + 0.5f;
-            buffer.addVertex(x - halfSize, y, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-            buffer.addVertex(x + halfSize, y, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-            buffer.addVertex(x, y - halfSize, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-            buffer.addVertex(x, y + halfSize, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-            buffer.addVertex(x, y, z - halfSize).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-            buffer.addVertex(x, y, z + halfSize).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-            try {
-                builtBuffer = buffer.buildOrThrow();
-                BufferUploader.drawWithShader(builtBuffer);
-                builtBuffer.close();
-            } catch (Exception e) {
-                // Ignored
-            }
+            RenderUtils.vertex(buffer, x - halfSize, y, z, SELECTION_COLOR);
+            RenderUtils.vertex(buffer, x + halfSize, y, z, SELECTION_COLOR);
+            RenderUtils.vertex(buffer, x, y - halfSize, z, SELECTION_COLOR);
+            RenderUtils.vertex(buffer, x, y + halfSize, z, SELECTION_COLOR);
+            RenderUtils.vertex(buffer, x, y, z - halfSize, SELECTION_COLOR);
+            RenderUtils.vertex(buffer, x, y, z + halfSize, SELECTION_COLOR);
 
             if (_selection.playereditSet != null)
             {
                 BlockEdit previous = _selection.playereditSet.getEditBefore(_selection);
                 if (previous != null)
                 {
-                    buffer = RenderUtils.startDrawingLines(tesselator);
-                    RenderSystem.lineWidth(3.0F);
-                    buffer.addVertex(previous.x + 0.5f, previous.y + 0.5f, previous.z + 0.5f).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-                    buffer.addVertex(x, y, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
-                    try {
-                        builtBuffer = buffer.buildOrThrow();
-                        BufferUploader.drawWithShader(builtBuffer);
-                        builtBuffer.close();
-                    } catch (Exception e) {
-                        // Ignored
-                    }
+                    RenderUtils.setLineWidth(3.0F);
+                    RenderUtils.vertex(buffer, previous.x + 0.5f, previous.y + 0.5f, previous.z + 0.5f, SELECTION_COLOR);
+                    RenderUtils.vertex(buffer, x, y, z, SELECTION_COLOR);
                 }
             }
+
+            RenderUtils.draw(ctx);
         }
     }
 

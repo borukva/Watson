@@ -51,11 +51,11 @@ public class Analysis implements IChatHandler
 
     public static void removeMatchedChatHandler(ConfigString pattern)
     {
-        for (IMatchedChatHandler handler : m.get(pattern.getOldStringValue()))
+        for (IMatchedChatHandler handler : m.get(pattern.getLastStringValue()))
         {
             m.put(pattern.getStringValue(), handler);
         }
-        m.removeAll(pattern.getOldStringValue());
+        m.removeAll(pattern.getLastStringValue());
     }
 
     @Override

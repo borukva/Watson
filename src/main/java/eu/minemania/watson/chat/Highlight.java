@@ -1,5 +1,6 @@
 package eu.minemania.watson.chat;
 
+import java.util.Locale;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,7 +16,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import org.apache.commons.lang3.tuple.MutablePair;
 import eu.minemania.watson.Watson;
@@ -286,7 +287,7 @@ public class Highlight
                 }
                 MutableComponent displayName = (MutableComponent) mc.player.getDisplayName();
                 String time = new SimpleDateFormat("HH:mm:ss").format(new Date());
-                HoverEvent hover = new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable("watson.chat.message.hover", (Component.literal(time)).withStyle(ChatFormatting.YELLOW)));
+                HoverEvent hover = new HoverEvent.ShowText(Component.translatable("watson.chat.message.hover", (Component.literal(time)).withStyle(ChatFormatting.YELLOW)));
                 displayName.withStyle(style -> style.withHoverEvent(hover));
                 if (!prefix.equals(Component.literal("")))
                 {
@@ -350,7 +351,7 @@ public class Highlight
                     String sound = Configs.Highlights.HIGHLIGHT_SOUND.getStringValue();
                     try
                     {
-                        SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(ResourceLocation.parse(sound));
+                        SoundEvent soundEvent = BuiltInRegistries.SOUND_EVENT.getValue(Identifier.parse(sound));
                         float soundVolume = (float) Configs.Highlights.HIGHLIGHT_SOUND_VOLUME.getDoubleValue();
                         player.playSound(soundEvent, soundVolume, 1f);
                     }
@@ -486,7 +487,7 @@ public class Highlight
                 ChatFormatting color = item_highlight.getRight().getLeft();
                 ChatFormatting style = item_highlight.getRight().getRight();
 
-                ChatMessage.localOutputT("watson.message.highlight.list_string", index + 1, item_highlight.getLeft(), color != null ? color.getName() : null, style != null ? style.getName() : null);
+                ChatMessage.localOutputT("watson.message.highlight.list_string", index + 1, item_highlight.getLeft(), color != null ? color.name().toLowerCase(Locale.ROOT) : null, style != null ? style.name().toLowerCase(Locale.ROOT) : null);
                 ++index;
             }
         }

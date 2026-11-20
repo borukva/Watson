@@ -7,12 +7,13 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public abstract class PluginResponsePacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("ledger","response");
+    public static final Identifier CHANNEL = Identifier.fromNamespaceAndPath("ledger","response");
     private boolean registered = false;
+    private int failures = 0;
 
     private final static PluginResponsePacketHandler<PluginResponsePacket.Payload> INSTANCE = new PluginResponsePacketHandler<>()
     {
@@ -29,28 +30,42 @@ public abstract class PluginResponsePacketHandler<T extends CustomPacketPayload>
     }
 
     @Override
-    public ResourceLocation getPayloadChannel()
+    public Identifier getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(ResourceLocation channel)
+    public void tickFailures()
+    {
+        ++this.failures;
+    }
+
+    @Override
+    public boolean checkFailures()
+    {
+        return this.failures <= this.maxFailures();
+    }
+
+
+    @Override
+    public boolean isPlayRegistered(Identifier channel)
     {
         return this.registered;
     }
 
     @Override
-    public void setPlayRegistered(ResourceLocation channel)
+    public void setPlayRegistered(Identifier channel)
     {
         if (channel.equals(CHANNEL))
         {
             this.registered = true;
+            this.failures = 0;
         }
     }
 
     @Override
-    public void reset(ResourceLocation channel)
+    public void reset(Identifier channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -62,7 +77,7 @@ public abstract class PluginResponsePacketHandler<T extends CustomPacketPayload>
 
     public void decodePayload(PluginResponsePacket content)
     {
-        ResourceLocation identifier = content.getIdentifier();
+        Identifier identifier = content.getIdentifier();
         int responseCode = content.getResponseCode();
         String response;
         Message.MessageType messageType;

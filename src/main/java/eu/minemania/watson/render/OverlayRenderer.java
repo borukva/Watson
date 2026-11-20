@@ -8,6 +8,7 @@ import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.db.LocalAnnotation;
 import fi.dy.masa.malilib.render.RenderUtils;
+import fi.dy.masa.malilib.util.text.TextAlignment;
 
 public class OverlayRenderer
 {
@@ -76,7 +77,7 @@ public class OverlayRenderer
         Entity entity = mc.getCameraEntity();
         if (entity != null)
         {
-            RenderUtils.drawTextPlate(Arrays.asList(text), x, y, z, entity.getYRot(), entity.getXRot(), scaled, Configs.Generic.BILLBOARD_FOREGROUND.getIntegerValue(), Configs.Generic.BILLBOARD_BACKGROUND.getIntegerValue(), true);
+            RenderUtils.drawTextPlate(Arrays.asList(text), x, y, z, entity.getYRot(), entity.getXRot(), scaled, TextAlignment.CENTER, Configs.Generic.BILLBOARD_FOREGROUND.getIntegerValue(), Configs.Generic.BILLBOARD_BACKGROUND.getIntegerValue(), true);
         }
     }
 }

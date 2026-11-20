@@ -7,7 +7,7 @@ import java.util.Date;
 import com.mojang.blaze3d.platform.NativeImage;
 import eu.minemania.watson.Watson;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
@@ -36,21 +36,20 @@ public class Screenshot
 
     public static void save(File file, Minecraft mc)
     {
-        NativeImage nativeImage = net.minecraft.client.Screenshot.takeScreenshot(mc.getMainRenderTarget());
-        Util.ioPool().execute(() -> {
+        net.minecraft.client.Screenshot.takeScreenshot(mc.gameRenderer.mainRenderTarget(), nativeImage -> Util.ioPool().execute(() -> {
             try {
                 nativeImage.writeToFile(file);
-                MutableComponent text = Component.literal(file.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
-                mc.gui.getChat().addMessage(Component.translatable("screenshot.success", text));
+                MutableComponent text = Component.literal(file.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle(style -> style.withClickEvent(new ClickEvent.OpenFile(file.getAbsolutePath())));
+                mc.execute(() -> mc.gui.hud.getChat().addClientSystemMessage(Component.translatable("screenshot.success", text)));
             }
             catch (Exception text) {
                 Watson.logger.warn("Couldn't save screenshot", (Throwable)text);
-                mc.gui.getChat().addMessage(Component.translatable("screenshot.failure", text.getMessage()));
+                mc.execute(() -> mc.gui.hud.getChat().addClientSystemMessage(Component.translatable("screenshot.failure", text.getMessage())));
             }
             finally {
                 nativeImage.close();
             }
-        });
+        }));
     }
 
     /**
@@ -72,7 +71,7 @@ public class Screenshot
             File result = new File(dir, baseName + playerSuffix + (count == 1 ? "" : "-" + count) + ".png");
             if (!result.exists())
             {
-                dir.mkdir();
+                dir.mkdirs();
                 return result;
             }
             ++count;

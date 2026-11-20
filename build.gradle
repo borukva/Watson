@@ -1,7 +1,7 @@
 import groovy.json.JsonSlurper
 
 plugins {
-	id 'fabric-loom' version '1.14-SNAPSHOT'
+	id 'net.fabricmc.fabric-loom' version '1.15.5'
 	id 'maven-publish'
 	id 'com.modrinth.minotaur' version '2.+'
 }
@@ -29,6 +29,12 @@ repositories {
 		}
 	}
 	maven {
+		url = 'https://maven.fallenbreath.me/releases'
+		content {
+			includeGroupAndSubgroups("me.fallenbreath")
+		}
+	}
+	maven {
 		url = 'https://maven.terraformersmc.com/'
 		content {
 			includeGroupAndSubgroups("com.terraformersmc")
@@ -38,12 +44,11 @@ repositories {
 
 dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+	implementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
 	implementation "com.google.code.findbugs:jsr305:3+"
 
-	modImplementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_malilib}:${project.malilib_version}"
-	modImplementation "com.terraformersmc:modmenu:${project.mod_menu_version}"
+	implementation "fi.dy.masa.malilib:malilib-fabric-${project.minecraft_version_malilib}:${project.malilib_version}"
+	compileOnly "com.terraformersmc:modmenu:${project.mod_menu_version}"
 }
 
 def CHANGELOG = ENV.CHANGELOG ?: "No changelog provided"
@@ -66,12 +71,12 @@ processResources {
 
 tasks.withType(JavaCompile).configureEach {
 	it.options.encoding = "UTF-8"
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
@@ -85,7 +90,7 @@ modrinth {
 	changelog = CHANGELOG
 	gameVersions = [project.minecraft_version]
 	loaders = loadersResult
-	uploadFile = remapJar
+	uploadFile = jar
 	dependencies {
 		required.project "malilib"
 	}

@@ -3,11 +3,7 @@ package eu.minemania.watson.db;
 import java.io.PrintWriter;
 import java.util.*;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
 import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.render.RenderUtils;
 import eu.minemania.watson.selection.PlayereditUtils;
@@ -85,7 +81,7 @@ public class PlayereditSet
         return _visible;
     }
 
-    public synchronized void drawOutlines()
+    public synchronized void drawOutlines(BufferBuilder buffer)
     {
         if (isVisible())
         {
@@ -93,19 +89,7 @@ public class PlayereditSet
             {
                 if (DataManager.getWorldPlugin().isEmpty() || DataManager.getWorldPlugin().equals(edit.world))
                 {
-                    Tesselator tessellator = Tesselator.getInstance();
-                    BufferBuilder buffer = RenderUtils.startDrawingLines(tessellator);
-                    MeshData builtBuffer;
-
                     PlayereditUtils.getInstance().getRevertAction(edit, 0, edit.drawOutline(buffer));
-
-                    try {
-                        builtBuffer = buffer.buildOrThrow();
-                        BufferUploader.drawWithShader(builtBuffer);
-                        builtBuffer.close();
-                    } catch (Exception e) {
-                        // Ignored
-                    }
                 }
             }
         }
@@ -156,9 +140,9 @@ public class PlayereditSet
                         double length = diff.length();
                         if (length >= (float) Configs.Edits.VECTOR_LENGTH.getDoubleValue())
                         {
-                            RenderSystem.lineWidth(2f);
-                            buffer.addVertex((float) pPos.x, (float) pPos.y, (float) pPos.z).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) nPos.x, (float) nPos.y, (float) nPos.z).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
+                            RenderUtils.setLineWidth(2f);
+                            RenderUtils.vertex(buffer, (float) pPos.x, (float) pPos.y, (float) pPos.z, color);
+                            RenderUtils.vertex(buffer, (float) nPos.x, (float) nPos.y, (float) nPos.z, color);
 
                             // Length from arrow tip to midpoint of vector as a fraction of
                             // the total vector length. Scale the arrow in proportion to the
@@ -190,14 +174,14 @@ public class PlayereditSet
                             Vec3 draw1 = new Vec3(fin1.x * arrowScale * length, fin1.y * arrowScale * length, fin1.z * arrowScale * length);
                             Vec3 draw2 = new Vec3(fin2.x * arrowScale * length, fin2.y * arrowScale * length, fin2.z * arrowScale * length);
                             // Draw four fins
-                            buffer.addVertex((float) tip.x, (float) tip.y, (float) tip.z).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) (tail.x + draw1.x), (float) (tail.y + draw1.y), (float) (tail.z + draw1.z)).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) tip.x, (float) tip.y, (float) tip.z).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) (tail.x - draw1.x), (float) (tail.y - draw1.y), (float) (tail.z - draw1.z)).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) tip.x, (float) tip.y, (float) tip.z).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) (tail.x + draw2.x), (float) (tail.y + draw2.y), (float) (tail.z + draw2.z)).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) tip.x, (float) tip.y, (float) tip.z).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
-                            buffer.addVertex((float) (tail.x - draw2.x), (float) (tail.y - draw2.y), (float) (tail.z - draw2.z)).setColor(color.r, color.g, color.b, color.a).setNormal(0,0,0);
+                            RenderUtils.vertex(buffer, (float) tip.x, (float) tip.y, (float) tip.z, color);
+                            RenderUtils.vertex(buffer, (float) (tail.x + draw1.x), (float) (tail.y + draw1.y), (float) (tail.z + draw1.z), color);
+                            RenderUtils.vertex(buffer, (float) tip.x, (float) tip.y, (float) tip.z, color);
+                            RenderUtils.vertex(buffer, (float) (tail.x - draw1.x), (float) (tail.y - draw1.y), (float) (tail.z - draw1.z), color);
+                            RenderUtils.vertex(buffer, (float) tip.x, (float) tip.y, (float) tip.z, color);
+                            RenderUtils.vertex(buffer, (float) (tail.x + draw2.x), (float) (tail.y + draw2.y), (float) (tail.z + draw2.z), color);
+                            RenderUtils.vertex(buffer, (float) tip.x, (float) tip.y, (float) tip.z, color);
+                            RenderUtils.vertex(buffer, (float) (tail.x - draw2.x), (float) (tail.y - draw2.y), (float) (tail.z - draw2.z), color);
                         }
                         prev = next;
                     }

@@ -28,8 +28,8 @@ public class Command
 
     public static void reregisterWatsonCommand(CommandDispatcher<CommandSourceStack> dispatcher, ConfigString command)
     {
-        ClientCommandManager.getClientSideCommands().remove(command.getOldStringValue());
-        CommandRemoval.removeCommand(dispatcher.getRoot(), command.getOldStringValue());
+        ClientCommandManager.getClientSideCommands().remove(command.getLastStringValue());
+        CommandRemoval.removeCommand(dispatcher.getRoot(), command.getLastStringValue());
         WatsonCommand.register(dispatcher);
 
         if (Minecraft.getInstance().hasSingleplayerServer())

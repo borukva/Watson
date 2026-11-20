@@ -4,21 +4,21 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class PluginActionPacket
 {
     private BlockPos blockPos;
     private String type;
-    private ResourceLocation dim;
-    private ResourceLocation oldObj;
-    private ResourceLocation newObj;
+    private Identifier dim;
+    private Identifier oldObj;
+    private Identifier newObj;
     private String source;
     private long time;
     private boolean rolledBack;
     private String additionalData;
 
-    public PluginActionPacket(BlockPos blockPos, String type, ResourceLocation dim, ResourceLocation oldObj, ResourceLocation newObj, String source, long time, boolean rolledBack, String additionalData)
+    public PluginActionPacket(BlockPos blockPos, String type, Identifier dim, Identifier oldObj, Identifier newObj, String source, long time, boolean rolledBack, String additionalData)
     {
         this.blockPos = blockPos;
         this.type = type;
@@ -41,17 +41,17 @@ public class PluginActionPacket
         return this.type;
     }
 
-    public ResourceLocation getDimension()
+    public Identifier getDimension()
     {
         return this.dim;
     }
 
-    public ResourceLocation getOldObject()
+    public Identifier getOldObject()
     {
         return this.oldObj;
     }
 
-    public ResourceLocation getNewObject()
+    public Identifier getNewObject()
     {
         return this.newObj;
     }
@@ -83,7 +83,7 @@ public class PluginActionPacket
 
         public Payload(FriendlyByteBuf input)
         {
-            this(new PluginActionPacket(input.readBlockPos(), input.readUtf(), input.readResourceLocation(), input.readResourceLocation(), input.readResourceLocation(), input.readUtf(), input.readLong(), input.readBoolean(), input.readUtf()));
+            this(new PluginActionPacket(input.readBlockPos(), input.readUtf(), input.readIdentifier(), input.readIdentifier(), input.readIdentifier(), input.readUtf(), input.readLong(), input.readBoolean(), input.readUtf()));
         }
 
         @Override

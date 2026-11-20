@@ -2,7 +2,7 @@ package eu.minemania.watson.db.data;
 
 import java.util.Collection;
 import java.util.List;
-import net.minecraft.client.gui.GuiGraphics;
+import fi.dy.masa.malilib.render.GuiContext;
 import com.google.common.collect.ImmutableList;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.gui.GuiBlockeditData;
@@ -25,7 +25,7 @@ public class WidgetListBlockedit extends WidgetListBase<BlockeditEntry, WidgetBl
     }
 
     @Override
-    public void drawContents(GuiGraphics drawContext, int mouseX, int mouseY, float partialTicks)
+    public void drawContents(GuiContext drawContext, int mouseX, int mouseY, float partialTicks)
     {
         super.drawContents(drawContext, mouseX, mouseY, partialTicks);
         lastScrollbarPosition = this.scrollBar.getValue();

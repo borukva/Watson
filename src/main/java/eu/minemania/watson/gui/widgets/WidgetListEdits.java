@@ -3,9 +3,9 @@ package eu.minemania.watson.gui.widgets;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import net.minecraft.client.gui.GuiGraphics;
+import fi.dy.masa.malilib.render.GuiContext;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import com.google.common.collect.ImmutableList;
 import eu.minemania.watson.gui.GuiEdits;
@@ -41,7 +41,7 @@ public class WidgetListEdits extends WidgetListBase<PlayereditEntry, WidgetEdits
     }
 
     @Override
-    public void drawContents(GuiGraphics drawContext, int mouseX, int mouseY, float partialTicks)
+    public void drawContents(GuiContext drawContext, int mouseX, int mouseY, float partialTicks)
     {
         super.drawContents(drawContext, mouseX, mouseY, partialTicks);
         lastScrollbarPosition = this.scrollBar.getValue();
@@ -83,7 +83,7 @@ public class WidgetListEdits extends WidgetListBase<PlayereditEntry, WidgetEdits
     protected List<String> getEntryStringsForFilter(PlayereditEntry entry)
     {
         ItemStack stack = entry.getStack();
-        ResourceLocation rl = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier rl = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
         if (rl != null)
         {

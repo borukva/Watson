@@ -1,6 +1,7 @@
 package eu.minemania.watson.analysis;
 
 import java.util.regex.Matcher;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.chat.ChatMessage;
@@ -117,9 +118,9 @@ public class CoreProtectAnalysis extends Analysis
         isCpMessage = true;
         _lookupDetails = false;
         HoverEvent hover = chat.getSiblings().get(0).getStyle().getHoverEvent();
-        if (hover != null && hover.getValue(hover.getAction()) != null)
+        if (hover instanceof HoverEvent.ShowText(Component hoverText))
         {
-            String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+            String text = hoverText.getString().replaceAll("\u00A7.", "");
             _millis = TimeStamp.parseTimeExpression(text, m.group(1));
         }
         else
@@ -164,9 +165,9 @@ public class CoreProtectAnalysis extends Analysis
         isCpMessage = true;
         _lookupDetails = false;
         HoverEvent hover = chat.getSiblings().get(0).getStyle().getHoverEvent();
-        if (hover != null && hover.getValue(hover.getAction()) != null)
+        if (hover instanceof HoverEvent.ShowText(Component hoverText))
         {
-            String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+            String text = hoverText.getString().replaceAll("\u00A7.", "");
             _millis = TimeStamp.parseTimeExpression(text, m.group(1));
         }
         else
@@ -190,9 +191,9 @@ public class CoreProtectAnalysis extends Analysis
         isCpMessage = true;
         _lookupDetails = false;
         HoverEvent hover = chat.getSiblings().get(0).getStyle().getHoverEvent();
-        if (hover != null && hover.getValue(hover.getAction()) != null)
+        if (hover instanceof HoverEvent.ShowText(Component hoverText))
         {
-            String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+            String text = hoverText.getString().replaceAll("\u00A7.", "");
             _millis = TimeStamp.parseTimeExpression(text, m.group(1));
         }
         else

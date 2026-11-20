@@ -255,7 +255,7 @@ public class GuiLedger extends GuiBase
         Set<ResourceKey<Level>> dimensions = networkHandler.levels();
         for (ResourceKey<Level> dimension : dimensions)
         {
-            String dimensionString = dimension.location().toString();
+            String dimensionString = dimension.identifier().toString();
             String invertedDimensionString = "!"+dimensionString;
             if (!dimensionText.isEmpty() && (dimensionString.equals(dimensionText) || invertedDimensionString.equals(dimensionText)))
             {
@@ -264,7 +264,7 @@ public class GuiLedger extends GuiBase
             }
             else if (dimensionText.isEmpty())
             {
-                currentDimensions.add(dimension.location().toString());
+                currentDimensions.add(dimension.identifier().toString());
             }
         }
 

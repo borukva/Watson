@@ -10,6 +10,7 @@ import eu.minemania.watson.chat.Highlight;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -23,7 +24,7 @@ public abstract class MixinPlayerEntity extends LivingEntity
 
     protected MixinPlayerEntity(Level world, GameProfile gameprofile)
     {
-        super(EntityType.PLAYER, world);
+        super(EntityTypes.PLAYER, world);
     }
 
     @Redirect(method = "getDisplayName", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;getTeam()Lnet/minecraft/world/scores/PlayerTeam;"))
@@ -62,10 +63,10 @@ public abstract class MixinPlayerEntity extends LivingEntity
         return componentln;
     }
 
-    @Redirect(method = "decorateDisplayNameComponent(Lnet/minecraft/network/chat/MutableComponent;)Lnet/minecraft/network/chat/MutableComponent;", at = @At(value = "INVOKE", target = "Lcom/mojang/authlib/GameProfile;getName()Ljava/lang/String;", remap = false))
+    @Redirect(method = "decorateDisplayNameComponent(Lnet/minecraft/network/chat/MutableComponent;)Lnet/minecraft/network/chat/MutableComponent;", at = @At(value = "INVOKE", target = "Lcom/mojang/authlib/GameProfile;name()Ljava/lang/String;", remap = false))
     private String changeCustomUsername(GameProfile gameProfile)
     {
-        String username = gameProfile.getName();
+        String username = gameProfile.name();
         if (Highlight.changeUsername)
         {
             username = Highlight.getUsername();

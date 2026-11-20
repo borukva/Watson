@@ -1,5 +1,7 @@
 package eu.minemania.watson.chat.command;
 
+import net.minecraft.commands.CommandSourceStack;
+import com.mojang.brigadier.CommandDispatcher;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,7 +55,7 @@ public class ClientCommandManager
 
     public static void sendFeedback(Component message)
     {
-        Minecraft.getInstance().gui.getChat().addMessage(message);
+        Minecraft.getInstance().gui.hud.getChat().addClientSystemMessage(message);
     }
 
     public static int executeCommand(StringReader reader, String command)
@@ -62,7 +64,9 @@ public class ClientCommandManager
         LocalPlayer player = mc.player;
         try
         {
-            return player.connection.getCommands().execute(reader, new FakeCommandSource(player));
+            @SuppressWarnings("unchecked")
+            CommandDispatcher<CommandSourceStack> dispatcher = (CommandDispatcher<CommandSourceStack>) (Object) player.connection.getCommands();
+            return dispatcher.execute(reader, new FakeCommandSource(player));
         }
         catch (CommandSyntaxException e)
         {
@@ -70,7 +74,7 @@ public class ClientCommandManager
             if (e.getInput() != null && e.getCursor() >= 0)
             {
                 int cursor = Math.min(e.getCursor(), e.getInput().length());
-                MutableComponent text = Component.literal("").withStyle(ChatFormatting.GRAY).withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command)));
+                MutableComponent text = Component.literal("").withStyle(ChatFormatting.GRAY).withStyle(style -> style.withClickEvent(new ClickEvent.SuggestCommand(command)));
                 if (cursor > 10)
                 {
                     text.append("...");
@@ -88,7 +92,7 @@ public class ClientCommandManager
         catch (Exception e)
         {
             MutableComponent error = Component.literal(e.getMessage() == null ? e.getClass().getName() : e.getMessage());
-            ClientCommandManager.sendError(Component.translatable("command.failed").withStyle(style -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, error))));
+            ClientCommandManager.sendError(Component.translatable("command.failed").withStyle(style -> style.withHoverEvent(new HoverEvent.ShowText(error))));
             e.printStackTrace();
         }
         return 1;

@@ -1,5 +1,6 @@
 package eu.minemania.watson.network.ledger.action;
 
+import net.minecraft.core.Holder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.config.Configs;
@@ -15,11 +16,12 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.TagParser;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.decoration.painting.PaintingVariant;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import org.apache.commons.lang3.ObjectUtils;
@@ -29,8 +31,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class PluginActionPacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("ledger","action");
+    public static final Identifier CHANNEL = Identifier.fromNamespaceAndPath("ledger","action");
     private boolean registered = false;
+    private int failures = 0;
 
     private final static PluginActionPacketHandler<PluginActionPacket.Payload> INSTANCE = new PluginActionPacketHandler<>()
     {
@@ -47,28 +50,42 @@ public abstract class PluginActionPacketHandler<T extends CustomPacketPayload> i
     }
 
     @Override
-    public ResourceLocation getPayloadChannel()
+    public Identifier getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(ResourceLocation channel)
+    public void tickFailures()
+    {
+        ++this.failures;
+    }
+
+    @Override
+    public boolean checkFailures()
+    {
+        return this.failures <= this.maxFailures();
+    }
+
+
+    @Override
+    public boolean isPlayRegistered(Identifier channel)
     {
         return this.registered;
     }
 
     @Override
-    public void setPlayRegistered(ResourceLocation channel)
+    public void setPlayRegistered(Identifier channel)
     {
         if (channel.equals(CHANNEL))
         {
             this.registered = true;
+            this.failures = 0;
         }
     }
 
     @Override
-    public void reset(ResourceLocation channel)
+    public void reset(Identifier channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -82,9 +99,9 @@ public abstract class PluginActionPacketHandler<T extends CustomPacketPayload> i
     {
         BlockPos pos = content.getBlockPos();
         String type = content.getType();
-        ResourceLocation dimension = content.getDimension();
-        ResourceLocation oldObj = content.getOldObject();
-        ResourceLocation newObj = content.getNewObject();
+        Identifier dimension = content.getDimension();
+        Identifier oldObj = content.getOldObject();
+        Identifier newObj = content.getNewObject();
         String source = content.getSource();
         long time = content.getTime() * 1000;
         boolean rolledBack = content.isRolledBack();
@@ -98,24 +115,21 @@ public abstract class PluginActionPacketHandler<T extends CustomPacketPayload> i
         if (!additionalData.isEmpty())
         {
             try {
-                CompoundTag nbtCompound = TagParser.parseTag(additionalData);
-                ItemStack itemStack = ItemStack.parseOptional(Minecraft.getInstance().level.registryAccess(), nbtCompound);
+                CompoundTag nbtCompound = TagParser.parseCompoundFully(additionalData);
+                ItemStack itemStack = ItemStack.CODEC
+                        .parse(Minecraft.getInstance().level.registryAccess().createSerializationContext(NbtOps.INSTANCE), nbtCompound)
+                        .result()
+                        .orElse(ItemStack.EMPTY);
 
                 if (!itemStack.isEmpty())
                 {
                     count = itemStack.getCount();
-                    id = itemStack.getItemHolder().getRegisteredName();
-                    if (itemStack.getItemHolder().getRegisteredName().equals("minecraft:painting")) {
-                        CustomData nbtComponent = itemStack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY);
-                        if (!nbtComponent.isEmpty())
+                    id = itemStack.typeHolder().getRegisteredName();
+                    if (itemStack.typeHolder().getRegisteredName().equals("minecraft:painting")) {
+                        Holder<PaintingVariant> paintingVariant = itemStack.get(DataComponents.PAINTING_VARIANT);
+                        if (paintingVariant != null)
                         {
-                            nbtComponent.read(Painting.VARIANT_MAP_CODEC)
-                                    .result()
-                                    .ifPresent(
-                                            variantMap -> {
-                                                variant.set(variantMap.getRegisteredName());
-                                            }
-                                    );
+                            variant.set(paintingVariant.getRegisteredName());
                         }
                     }
                 } else {

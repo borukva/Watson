@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
@@ -30,7 +30,7 @@ import fi.dy.masa.malilib.config.options.ConfigOptionList;
 import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.config.options.ConfigStringList;
 import fi.dy.masa.malilib.util.FileUtils;
-import fi.dy.masa.malilib.util.JsonUtils;
+import fi.dy.masa.malilib.util.data.json.JsonUtils;
 
 public class Configs implements IConfigHandler
 {
@@ -319,12 +319,12 @@ public class Configs implements IConfigHandler
 
         for (String name : DataManager.getAllItemEntitiesStringIdentifiers())
         {
-            Optional<Block> optionalBlock = BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse(name));
-            Optional<Item> optionalItem = BuiltInRegistries.ITEM.getOptional(optionalBlock.map(block -> BuiltInRegistries.ITEM.getKey(block.asItem())).orElseGet(() -> ResourceLocation.parse(name)));
+            Optional<Block> optionalBlock = BuiltInRegistries.BLOCK.getOptional(Identifier.parse(name));
+            Optional<Item> optionalItem = BuiltInRegistries.ITEM.getOptional(optionalBlock.map(block -> BuiltInRegistries.ITEM.getKey(block.asItem())).orElseGet(() -> Identifier.parse(name)));
 
             if (optionalItem.isEmpty())
             {
-                color = setCustomColorOres(BuiltInRegistries.ENTITY_TYPE.getValue(ResourceLocation.parse(name)));
+                color = setCustomColorOres(BuiltInRegistries.ENTITY_TYPE.getValue(Identifier.parse(name)));
             }
             if (color.isEmpty() && optionalItem.isPresent())
             {

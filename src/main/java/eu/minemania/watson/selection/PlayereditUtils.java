@@ -1,13 +1,15 @@
 package eu.minemania.watson.selection;
 
+import net.minecraft.core.Holder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -24,7 +26,7 @@ import eu.minemania.watson.db.WatsonBlock;
 import eu.minemania.watson.db.data.BlockeditEntry;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import fi.dy.masa.malilib.util.ItemType;
+import fi.dy.masa.malilib.util.data.ItemType;
 import fi.dy.masa.malilib.util.StringUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 
@@ -143,7 +145,7 @@ public class PlayereditUtils
 
     public static ItemStack getItemStack(String blocks)
     {
-        Block block = BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(blocks));
+        Block block = BuiltInRegistries.BLOCK.getValue(Identifier.tryParse(blocks));
         if (block != Blocks.AIR)
         {
             if (block.equals(Blocks.WATER))
@@ -161,67 +163,67 @@ public class PlayereditUtils
         }
         else
         {
-            Item item = BuiltInRegistries.ITEM.getValue(ResourceLocation.tryParse(blocks));
+            Item item = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(blocks));
             if (item != Items.AIR)
             {
                 return new ItemStack(item);
             }
-            Optional<EntityType<?>> entityType = EntityType.byString(blocks);
+            Optional<EntityType<?>> entityType = Optional.ofNullable(Identifier.tryParse(blocks)).flatMap(BuiltInRegistries.ENTITY_TYPE::getOptional);
             if (entityType.isPresent())
             {
                 EntityType<?> entity = entityType.get();
-                if (entity.equals(EntityType.PAINTING))
+                if (entity.equals(EntityTypes.PAINTING))
                 {
                     return new ItemStack(Items.PAINTING);
                 }
-                else if (entity.equals(EntityType.LEASH_KNOT))
+                else if (entity.equals(EntityTypes.LEASH_KNOT))
                 {
                     return new ItemStack(Items.LEAD);
                 }
-                else if (entity.equals(EntityType.ITEM_FRAME))
+                else if (entity.equals(EntityTypes.ITEM_FRAME))
                 {
                     return new ItemStack(Items.ITEM_FRAME);
                 }
-                else if (entity.equals(EntityType.MINECART))
+                else if (entity.equals(EntityTypes.MINECART))
                 {
                     return new ItemStack(Items.MINECART);
                 }
-                else if (entity.equals(EntityType.CHEST_MINECART))
+                else if (entity.equals(EntityTypes.CHEST_MINECART))
                 {
                     return new ItemStack(Items.CHEST_MINECART);
                 }
-                else if (entity.equals(EntityType.FURNACE_MINECART))
+                else if (entity.equals(EntityTypes.FURNACE_MINECART))
                 {
                     return new ItemStack(Items.FURNACE_MINECART);
                 }
-                else if (entity.equals(EntityType.HOPPER_MINECART))
+                else if (entity.equals(EntityTypes.HOPPER_MINECART))
                 {
                     return new ItemStack(Items.HOPPER_MINECART);
                 }
-                else if (entity.equals(EntityType.TNT_MINECART))
+                else if (entity.equals(EntityTypes.TNT_MINECART))
                 {
                     return new ItemStack(Items.TNT_MINECART);
                 }
-                else if (entity.is(EntityTypeTags.BOAT))
+                else if (entity.builtInRegistryHolder().is(EntityTypeTags.BOAT))
                 {
                     return new ItemStack(Items.OAK_BOAT);
                 }
-                else if (entity.equals(EntityType.ARMOR_STAND))
+                else if (entity.equals(EntityTypes.ARMOR_STAND))
                 {
                     return new ItemStack(Items.ARMOR_STAND);
                 }
-                else if (entity.equals(EntityType.END_CRYSTAL))
+                else if (entity.equals(EntityTypes.END_CRYSTAL))
                 {
                     return new ItemStack(Items.END_CRYSTAL);
                 }
                 else
                 {
-                    if (entity.equals(EntityType.PLAYER))
+                    if (entity.equals(EntityTypes.PLAYER))
                     {
-                        return new ItemStack(SpawnEggItem.byId(EntityType.VILLAGER));
+                        return SpawnEggItem.byId(EntityTypes.VILLAGER).map(ItemStack::new).orElseGet(() -> new ItemStack(Items.BEDROCK));
                     }
-                    SpawnEggItem spawnEgg = SpawnEggItem.byId(entity);
-                    if (spawnEgg == null)
+                    Optional<Holder<Item>> spawnEgg = SpawnEggItem.byId(entity);
+                    if (spawnEgg.isEmpty())
                     {
                         InfoUtils.showGuiMessage(MessageType.WARNING, "watson.error.entity.not_found", entity.getDescription().getString());
                         if (Configs.Generic.DEBUG.getBooleanValue())
@@ -231,7 +233,7 @@ public class PlayereditUtils
                         return new ItemStack(Items.BEDROCK);
                     }
 
-                    return new ItemStack(spawnEgg);
+                    return new ItemStack(spawnEgg.get());
                 }
             }
         }

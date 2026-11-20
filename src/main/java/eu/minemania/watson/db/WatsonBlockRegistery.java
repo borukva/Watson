@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -53,7 +53,7 @@ public final class WatsonBlockRegistery
                     String[] watsonBlockData = entry.split(";");
                     if (watsonBlockData.length == 3)
                     {
-                        Block block = BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(watsonBlockData[0]));
+                        Block block = BuiltInRegistries.BLOCK.getValue(Identifier.tryParse(watsonBlockData[0]));
                         WatsonBlock watsonBlock = new WatsonBlock();
                         if (block != Blocks.AIR)
                         {
@@ -75,7 +75,7 @@ public final class WatsonBlockRegistery
                         }
                         else
                         {
-                            Item item = BuiltInRegistries.ITEM.getValue(ResourceLocation.tryParse(watsonBlockData[0]));
+                            Item item = BuiltInRegistries.ITEM.getValue(Identifier.tryParse(watsonBlockData[0]));
                             if (item != Items.AIR)
                             {
                                 watsonBlock.setName(watsonBlockData[0]);
@@ -93,7 +93,7 @@ public final class WatsonBlockRegistery
                                 }
                                 addWatsonBlock(watsonBlock);
                             }
-                            Optional<EntityType<?>> entity = EntityType.byString(watsonBlockData[0]);
+                            Optional<EntityType<?>> entity = Optional.ofNullable(Identifier.tryParse(watsonBlockData[0])).flatMap(BuiltInRegistries.ENTITY_TYPE::getOptional);
                             if (entity.isPresent())
                             {
                                 watsonBlock.setName(watsonBlockData[0]);

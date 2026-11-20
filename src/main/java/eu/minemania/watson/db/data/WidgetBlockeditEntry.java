@@ -1,11 +1,11 @@
 package eu.minemania.watson.db.data;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-import net.minecraft.client.gui.GuiGraphics;
-import com.mojang.blaze3d.vertex.PoseStack;
+import fi.dy.masa.malilib.render.GuiContext;
 import eu.minemania.watson.client.Teleport;
 import eu.minemania.watson.selection.PlayereditUtils;
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -109,27 +109,26 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
     }
 
     @Override
-    public boolean canSelectAt(int mouseX, int mouseY, int mouseButton)
+    public boolean canSelectAt(MouseButtonEvent click)
     {
         return false;
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
+    public void render(GuiContext drawContext, int mouseX, int mouseY, boolean selected)
     {
-        RenderUtils.color(1f, 1f, 1f, 1f);
 
         if (this.header1 == null && (selected || this.isMouseOver(mouseX, mouseY)))
         {
-            RenderUtils.drawRect(this.x, this.y, this.width, this.height, 0x70FFFFFF);
+            RenderUtils.drawRect(drawContext, this.x, this.y, this.width, this.height, 0x70FFFFFF);
         }
         else if (this.isOdd)
         {
-            RenderUtils.drawRect(this.x, this.y, this.width, this.height, 0x20FFFFFF);
+            RenderUtils.drawRect(drawContext, this.x, this.y, this.width, this.height, 0x20FFFFFF);
         }
         else
         {
-            RenderUtils.drawRect(this.x, this.y, this.width, this.height, 0x50FFFFFF);
+            RenderUtils.drawRect(drawContext, this.x, this.y, this.width, this.height, 0x50FFFFFF);
         }
 
         int x1 = this.getColumnPosX(0);
@@ -143,12 +142,12 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
 
         if (this.header1 != null)
         {
-            this.drawString(x1, y, color, this.header1, drawContext);
-            this.drawString(x2, y, color, this.header2, drawContext);
-            this.drawString(x3, y, color, this.header3, drawContext);
-            this.drawString(x4, y, color, this.header4, drawContext);
-            this.drawString(x5, y, color, this.header5, drawContext);
-            this.drawString(x6, y, color, this.header6, drawContext);
+            this.drawString(drawContext, x1, y, color, this.header1);
+            this.drawString(drawContext, x2, y, color, this.header2);
+            this.drawString(drawContext, x3, y, color, this.header3);
+            this.drawString(drawContext, x4, y, color, this.header4);
+            this.drawString(drawContext, x5, y, color, this.header5);
+            this.drawString(drawContext, x6, y, color, this.header6);
         }
         else if (this.entry != null)
         {
@@ -162,28 +161,26 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
             {
                 description = this.textRenderer.plainSubstrByWidth(description, width - x6 - this.entry.getButton().getWidth() + 5).concat("...");
             }
-            this.drawString(x1, y, 0xFFFFFFFF, action, drawContext);
-            this.drawString(x2, y, 0xFFFFFFFF, time, drawContext);
-            this.drawString(x3, y, 0xFFFFFFFF, coords, drawContext);
-            this.drawString(x4, y, 0xFFFFFFFF, world, drawContext);
-            this.drawString(x5, y, 0xFFFFFFFF, amount, drawContext);
-            this.drawString(x6, y, 0xFFFFFFFF, description, drawContext);
+            this.drawString(drawContext, x1, y, 0xFFFFFFFF, action);
+            this.drawString(drawContext, x2, y, 0xFFFFFFFF, time);
+            this.drawString(drawContext, x3, y, 0xFFFFFFFF, coords);
+            this.drawString(drawContext, x4, y, 0xFFFFFFFF, world);
+            this.drawString(drawContext, x5, y, 0xFFFFFFFF, amount);
+            this.drawString(drawContext, x6, y, 0xFFFFFFFF, description);
 
-            super.render(mouseX, mouseY, selected, drawContext);
+            super.render(drawContext, mouseX, mouseY, selected);
         }
     }
 
     @Override
-    public void postRenderHovered(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
+    public void postRenderHovered(GuiContext drawContext, int mouseX, int mouseY, boolean selected)
     {
-        PoseStack matrixStack = drawContext.pose();
         if (this.entry != null)
         {
             String descriptionText = PlayereditUtils.blockString(this.entry.getEdit(), PlayereditUtils.Edit.DESCRIPTION);
             if (mouseX > this.getColumnPosX(5) && this.getColumnPosX(5) + StringUtils.getStringWidth(descriptionText) > width - this.entry.getButton().getWidth() + 15)
             {
-                matrixStack.pushPose();
-                matrixStack.translate(0, 0, 200);
+                drawContext.nextStratum();
                 String header = GuiBase.TXT_BOLD + StringUtils.translate(HEADERS[5]);
                 int w1 = this.getStringWidth(header);
                 int w2 = this.width - 100;
@@ -203,18 +200,17 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
 
                 int x1 = x + 10;
 
-                RenderUtils.drawOutlinedBox(x, y, w1 + 20, 60, 0xFF000000, GuiBase.COLOR_HORIZONTAL_BAR);
+                RenderUtils.drawOutlinedBox(drawContext, x, y, w1 + 20, 60, 0xFF000000, GuiBase.COLOR_HORIZONTAL_BAR);
                 y += 6;
                 y += 4;
 
-                this.drawString(x1, y, 0xFFFFFFFF, header, drawContext);
+                this.drawString(drawContext, x1, y, 0xFFFFFFFF, header);
                 y += 16;
 
                 for (int i = 0; i < descriptions.size(); i++)
                 {
-                    this.drawString(x1, y + (i * 8) - 7, 0xFFFFFFFF, descriptions.get(i), drawContext);
+                    this.drawString(drawContext, x1, y + (i * 8) - 7, 0xFFFFFFFF, descriptions.get(i));
                 }
-                matrixStack.popPose();
             }
             if (mouseX < this.getColumnPosX(5))
             {
@@ -222,8 +218,7 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
                 {
                     return;
                 }
-                matrixStack.pushPose();
-                matrixStack.translate(0, 0, 200);
+                drawContext.nextStratum();
                 int w1 = 0;
                 int w2 = 0;
                 for (Map.Entry<?,?> entry : this.entry.getEdit().getAdditional().entrySet())
@@ -243,16 +238,15 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
                 int x1 = x + 10;
                 int x2 = x1 + w1 + 20;
 
-                RenderUtils.drawOutlinedBox(x, y, totalWidth, 60, 0xFF000000, GuiBase.COLOR_HORIZONTAL_BAR);
+                RenderUtils.drawOutlinedBox(drawContext, x, y, totalWidth, 60, 0xFF000000, GuiBase.COLOR_HORIZONTAL_BAR);
                 y += 10;
 
                 for (Map.Entry<?,?> entry : this.entry.getEdit().getAdditional().entrySet())
                 {
-                    this.drawString(x1, y, 0xFFFFFFFF, String.valueOf(entry.getKey()), drawContext);
-                    this.drawString(x2, y, 0xFFFFFFFF, String.valueOf(entry.getValue()), drawContext);
+                    this.drawString(drawContext, x1, y, 0xFFFFFFFF, String.valueOf(entry.getKey()));
+                    this.drawString(drawContext, x2, y, 0xFFFFFFFF, String.valueOf(entry.getValue()));
                     y += 16;
                 }
-                matrixStack.popPose();
             }
         }
     }

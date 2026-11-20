@@ -16,10 +16,7 @@ import java.util.regex.Pattern;
 
 import eu.minemania.watson.client.Teleport;
 import eu.minemania.watson.render.RenderUtils;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.MeshData;
-import com.mojang.blaze3d.vertex.Tesselator;
+import fi.dy.masa.malilib.render.RenderContext;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
@@ -255,10 +252,12 @@ public class BlockEditSet
     {
         if (Configs.Outlines.OUTLINE_SHOWN.getBooleanValue())
         {
+            RenderContext ctx = RenderUtils.startDrawingLines("edit_outlines");
             for (PlayereditSet editsForPlayer : playerEdits.values())
             {
-                editsForPlayer.drawOutlines();
+                editsForPlayer.drawOutlines(ctx.getBuilder());
             }
+            RenderUtils.draw(ctx);
         }
     }
 
@@ -266,22 +265,14 @@ public class BlockEditSet
     {
         if (Configs.Edits.VECTOR_SHOWN.getBooleanValue())
         {
-            Tesselator tessellator = Tesselator.getInstance();
-            BufferBuilder buffer = RenderUtils.startDrawingLines(tessellator);
-            MeshData builtBuffer;
+            RenderContext ctx = RenderUtils.startDrawingLines("edit_vectors");
             int nextColorIndex1 = 0;
             for (PlayereditSet editsForPlayer : playerEdits.values())
             {
-                editsForPlayer.drawVectors(OverlayRenderer.KELLY_COLORS[nextColorIndex1], buffer);
+                editsForPlayer.drawVectors(OverlayRenderer.KELLY_COLORS[nextColorIndex1], ctx.getBuilder());
                 nextColorIndex1 = (nextColorIndex1 + 1) % OverlayRenderer.KELLY_COLORS.length;
             }
-            try {
-                builtBuffer = buffer.buildOrThrow();
-                BufferUploader.drawWithShader(builtBuffer);
-                builtBuffer.close();
-            } catch (Exception e) {
-                // Ignored
-            }
+            RenderUtils.draw(ctx);
         }
     }
 

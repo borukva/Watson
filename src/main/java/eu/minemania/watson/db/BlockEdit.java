@@ -3,17 +3,15 @@ package eu.minemania.watson.db;
 import java.util.HashMap;
 import java.util.Optional;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.render.RenderUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.block.AmethystBlock;
 import net.minecraft.world.level.block.BedBlock;
@@ -40,7 +38,6 @@ public class BlockEdit
     public String world;
     public PlayereditSet playereditSet;
     public boolean disabled;
-    private final BlockRenderDispatcher blockModelShapes;
     protected boolean drawn;
     private HashMap<String,Object> additional;
 
@@ -55,8 +52,6 @@ public class BlockEdit
         this.z = z;
         this.block = block;
         this.world = world;
-        Minecraft mc = Minecraft.getInstance();
-        this.blockModelShapes = mc.getBlockRenderer();
     }
 
     public void setAdditional(HashMap<String,Object> additional)
@@ -71,7 +66,7 @@ public class BlockEdit
 
     public int drawOutline(BufferBuilder buffer)
     {
-        Block blocks = BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(block.getName()));
+        Block blocks = BuiltInRegistries.BLOCK.getValue(Identifier.tryParse(block.getName()));
         float lineWidth = block.getLineWidth();
         if (!blocks.getName().getString().toLowerCase().contains("air"))
         {
@@ -79,12 +74,12 @@ public class BlockEdit
             {
                 lineWidth = Configs.Outlines.ORE_LINEWIDTH.getIntegerValue();
             }
-            RenderSystem.lineWidth(lineWidth);
+            RenderUtils.setLineWidth(lineWidth);
             renderBlocks(buffer, blocks);
         }
         else
         {
-            RenderSystem.lineWidth(lineWidth);
+            RenderUtils.setLineWidth(lineWidth);
             renderEntities(buffer);
         }
         return 0;
@@ -97,7 +92,7 @@ public class BlockEdit
                 !block.getName().equals("minecraft:lava"))
         {
             BlockState state = blocks.defaultBlockState();
-            BakedModel model = this.blockModelShapes.getBlockModel(state);
+            BlockStateModel model = Minecraft.getInstance().getModelManager().getBlockStateModelSet().get(state);
             if (Configs.Lists.SMALLER_RENDER_BOX.getStrings().contains(block.getName()))
             {
                 RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(new BlockPos(x, y, z), color, -0.25, buffer);
@@ -128,7 +123,7 @@ public class BlockEdit
                         if (Configs.Outlines.FULL_BLOCK_OUTLINE.getBooleanValue()) {
                             RenderUtils.drawFullBlockOutlinesBatched(x, y, z, color, buffer);
                         } else {
-                            RenderUtils.drawBlockModelOutlinesBatched(model, state, new BlockPos(x, y, z), color, buffer);
+                            RenderUtils.drawBlockModelOutlinesBatched(model, new BlockPos(x, y, z), color, buffer);
                         }
                     }
                 }
@@ -149,7 +144,7 @@ public class BlockEdit
 
     private void renderEntities(BufferBuilder buffer)
     {
-        Optional<EntityType<?>> entity = EntityType.byString(block.getName());
+        Optional<EntityType<?>> entity = Optional.ofNullable(Identifier.tryParse(block.getName())).flatMap(BuiltInRegistries.ENTITY_TYPE::getOptional);
         Color4f color = block.getOverrideColor() != Color4f.ZERO && block.getOverrideColor() != null ? block.getOverrideColor() : block.getColor();
         if (entity.isPresent())
         {

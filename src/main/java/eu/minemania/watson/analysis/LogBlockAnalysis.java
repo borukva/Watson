@@ -124,9 +124,9 @@ public class LogBlockAnalysis extends Analysis
             }
             String dateTime = m.group(2);
             long millis = 0;
-            if (hover != null && hover.getValue(hover.getAction()) != null)
+            if (hover instanceof HoverEvent.ShowText(Component hoverText))
             {
-                String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+                String text = hoverText.getString().replaceAll("\u00A7.", "");
                 millis = TimeStamp.parseTimeExpression(text, dateTime);
                 dateTime = text;
             }
