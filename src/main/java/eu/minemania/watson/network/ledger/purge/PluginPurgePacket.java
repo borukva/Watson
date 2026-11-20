@@ -1,21 +1,21 @@
 package eu.minemania.watson.network.ledger.purge;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record PluginPurgePacket(String searchData) implements CustomPayload
+public record PluginPurgePacket(String searchData) implements CustomPacketPayload
 {
-    public static final Id<PluginPurgePacket> ID = new Id<>(PluginPurgePacketHandler.CHANNEL);
-    public static final PacketCodec<PacketByteBuf, PluginPurgePacket> CODEC = CustomPayload.codecOf(PluginPurgePacket::write, null);
+    public static final Type<PluginPurgePacket> ID = new Type<>(PluginPurgePacketHandler.CHANNEL);
+    public static final StreamCodec<FriendlyByteBuf, PluginPurgePacket> CODEC = CustomPacketPayload.codec(PluginPurgePacket::write, null);
 
-    public void write(PacketByteBuf output)
+    public void write(FriendlyByteBuf output)
     {
-        output.writeString(searchData);
+        output.writeUtf(searchData);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId()
+    public Type<? extends CustomPacketPayload> type()
     {
         return ID;
     }

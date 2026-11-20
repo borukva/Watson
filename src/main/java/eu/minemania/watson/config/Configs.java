@@ -7,7 +7,12 @@ import fi.dy.masa.malilib.config.IConfigHandler;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Block;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -26,12 +31,6 @@ import fi.dy.masa.malilib.config.options.ConfigString;
 import fi.dy.masa.malilib.config.options.ConfigStringList;
 import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
-import net.minecraft.block.Block;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.util.Identifier;
-import net.minecraft.registry.Registries;
 
 public class Configs implements IConfigHandler
 {
@@ -320,12 +319,12 @@ public class Configs implements IConfigHandler
 
         for (String name : DataManager.getAllItemEntitiesStringIdentifiers())
         {
-            Optional<Block> optionalBlock = Registries.BLOCK.getOptionalValue(Identifier.of(name));
-            Optional<Item> optionalItem = Registries.ITEM.getOptionalValue(optionalBlock.map(block -> Registries.ITEM.getId(block.asItem())).orElseGet(() -> Identifier.of(name)));
+            Optional<Block> optionalBlock = BuiltInRegistries.BLOCK.getOptional(ResourceLocation.parse(name));
+            Optional<Item> optionalItem = BuiltInRegistries.ITEM.getOptional(optionalBlock.map(block -> BuiltInRegistries.ITEM.getKey(block.asItem())).orElseGet(() -> ResourceLocation.parse(name)));
 
             if (optionalItem.isEmpty())
             {
-                color = setCustomColorOres(Registries.ENTITY_TYPE.get(Identifier.of(name)));
+                color = setCustomColorOres(BuiltInRegistries.ENTITY_TYPE.getValue(ResourceLocation.parse(name)));
             }
             if (color.isEmpty() && optionalItem.isPresent())
             {

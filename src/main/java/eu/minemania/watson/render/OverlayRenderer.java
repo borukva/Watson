@@ -1,14 +1,13 @@
 package eu.minemania.watson.render;
 
 import java.util.Arrays;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.db.LocalAnnotation;
 import fi.dy.masa.malilib.render.RenderUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.MathHelper;
 
 public class OverlayRenderer
 {
@@ -46,7 +45,7 @@ public class OverlayRenderer
         loginTime = System.currentTimeMillis();
     }
 
-    public static void renderOverlays(MinecraftClient mc)
+    public static void renderOverlays(Minecraft mc)
     {
         Entity entity = mc.getCameraEntity();
 
@@ -72,12 +71,12 @@ public class OverlayRenderer
 
     public static void drawBillboard(double x, double y, double z, double scale, String text)
     {
-        final float scaled = MathHelper.clamp((float) scale, 0.01f, 1f);
-        MinecraftClient mc = MinecraftClient.getInstance();
+        final float scaled = Mth.clamp((float) scale, 0.01f, 1f);
+        Minecraft mc = Minecraft.getInstance();
         Entity entity = mc.getCameraEntity();
         if (entity != null)
         {
-            RenderUtils.drawTextPlate(Arrays.asList(text), x, y, z, entity.getYaw(), entity.getPitch(), scaled, Configs.Generic.BILLBOARD_FOREGROUND.getIntegerValue(), Configs.Generic.BILLBOARD_BACKGROUND.getIntegerValue(), true);
+            RenderUtils.drawTextPlate(Arrays.asList(text), x, y, z, entity.getYRot(), entity.getXRot(), scaled, Configs.Generic.BILLBOARD_FOREGROUND.getIntegerValue(), Configs.Generic.BILLBOARD_BACKGROUND.getIntegerValue(), true);
         }
     }
 }

@@ -1,10 +1,9 @@
 package eu.minemania.watson.chat;
 
 import java.util.ArrayList;
-
+import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.analysis.*;
 import eu.minemania.watson.config.Configs;
-import net.minecraft.text.MutableText;
 
 public class ChatProcessor
 {
@@ -33,7 +32,7 @@ public class ChatProcessor
         _handlers.add(handler);
     }
 
-    public boolean onChat(MutableText chat)
+    public boolean onChat(MutableComponent chat)
     {
         if (Configs.Generic.ENABLED.getBooleanValue())
         {

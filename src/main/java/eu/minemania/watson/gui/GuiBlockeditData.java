@@ -1,6 +1,7 @@
 package eu.minemania.watson.gui;
 
 import javax.annotation.Nullable;
+import net.minecraft.client.gui.screens.Screen;
 import com.google.common.collect.ImmutableList;
 import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.db.TimeStamp;
@@ -22,8 +23,6 @@ import fi.dy.masa.malilib.interfaces.ICompletionListener;
 import fi.dy.masa.malilib.interfaces.IStringRetriever;
 import fi.dy.masa.malilib.util.GuiUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.screen.Screen;
-
 import java.util.List;
 
 public class GuiBlockeditData extends GuiListBase<BlockeditEntry, WidgetBlockeditEntry, WidgetListBlockedit>
@@ -88,12 +87,12 @@ public class GuiBlockeditData extends GuiListBase<BlockeditEntry, WidgetBlockedi
         int offset = this.getStringWidth(label) + 4;
         this.addWidget(new WidgetInfoIcon(x + offset, y + 4, Icons.INFO_11, "watson.gui.label.blockedit.info.format"));
 
-        this.textFieldTimeAgo = new GuiTextFieldGeneric(x + offset + 20, y + 2, width, 14, this.textRenderer);
-        this.textFieldTimeAgo.setText("0-0 0:0:0");
+        this.textFieldTimeAgo = new GuiTextFieldGeneric(x + offset + 20, y + 2, width, 14, this.font);
+        this.textFieldTimeAgo.setValue("0-0 0:0:0");
         this.addTextField(this.textFieldTimeAgo, new TimeAgoTextFieldListener(this));
 
-        this.textFieldYHeight = new GuiTextFieldGeneric(this.textFieldTimeAgo.getX() + this.textFieldTimeAgo.getWidth() + 20, y + 2, width, 14, this.textRenderer);
-        this.textFieldYHeight.setText("0");
+        this.textFieldYHeight = new GuiTextFieldGeneric(this.textFieldTimeAgo.getX() + this.textFieldTimeAgo.getWidth() + 20, y + 2, width, 14, this.font);
+        this.textFieldYHeight.setValue("0");
         this.addTextField(this.textFieldYHeight, new YHeightTextFieldListener(this));
 
         this.yHeightDropDown = new YHeightDropdown<>(this.textFieldYHeight.getX() + this.textFieldYHeight.getWidth() + 20, y + 2, width, 14, 100, 3, ImmutableList.copyOf(YHeightFilter.values()), YHeightFilter::getDisplayName);
@@ -122,9 +121,9 @@ public class GuiBlockeditData extends GuiListBase<BlockeditEntry, WidgetBlockedi
     }
 
     @Override
-    public boolean shouldPause()
+    public boolean isPauseScreen()
     {
-        return this.getParent() != null && this.getParent().shouldPause();
+        return this.getParent() != null && this.getParent().isPauseScreen();
     }
 
     public BlockeditBase getDisplay()
@@ -151,11 +150,11 @@ public class GuiBlockeditData extends GuiListBase<BlockeditEntry, WidgetBlockedi
     {
         if (this.textFieldTimeAgo != null)
         {
-            this.textFieldTimeAgo.setText(TimeStamp.formatMonthDayTime(this.getTime()));
+            this.textFieldTimeAgo.setValue(TimeStamp.formatMonthDayTime(this.getTime()));
         }
         if (this.textFieldYHeight != null)
         {
-            this.textFieldYHeight.setText(String.valueOf(this.getYHeight()));
+            this.textFieldYHeight.setValue(String.valueOf(this.getYHeight()));
         }
         if (this.yHeightDropDown != null)
         {
@@ -211,7 +210,7 @@ public class GuiBlockeditData extends GuiListBase<BlockeditEntry, WidgetBlockedi
         {
             try
             {
-                String textValue = textField.getText();
+                String textValue = textField.getValue();
                 long time = DataManager.getTimeDiff(textValue);
                 if (time != -1)
                 {
@@ -282,7 +281,7 @@ public class GuiBlockeditData extends GuiListBase<BlockeditEntry, WidgetBlockedi
         {
             try
             {
-                String yHeightString = textField.getText();
+                String yHeightString = textField.getValue();
                 parent.yHeight = Integer.parseInt(yHeightString);
             }
             catch (Exception e)

@@ -2,8 +2,10 @@ package eu.minemania.watson.gui.widgets;
 
 import java.util.List;
 import javax.annotation.Nullable;
-
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import eu.minemania.watson.db.data.EditListBlockedit;
 import eu.minemania.watson.gui.GuiBlockeditData;
 import eu.minemania.watson.gui.Icons;
@@ -18,9 +20,6 @@ import fi.dy.masa.malilib.gui.widgets.WidgetListEntrySortable;
 import fi.dy.masa.malilib.gui.widgets.WidgetSearchBar;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.ItemStack;
 
 public class WidgetEditsEntry extends WidgetListEntrySortable<PlayereditEntry>
 {
@@ -110,7 +109,7 @@ public class WidgetEditsEntry extends WidgetListEntrySortable<PlayereditEntry>
 
         for (PlayereditEntry entry : edits)
         {
-            maxNameLength = Math.max(maxNameLength, StringUtils.getStringWidth(entry.getStack().getName().getString()));
+            maxNameLength = Math.max(maxNameLength, StringUtils.getStringWidth(entry.getStack().getHoverName().getString()));
             maxBrokenLength = Math.max(maxBrokenLength, StringUtils.getStringWidth(String.valueOf(entry.getCountBroken())));
             maxPlacedLength = Math.max(maxPlacedLength, StringUtils.getStringWidth(String.valueOf(entry.getCountPlaced())));
             maxContAddedLength = Math.max(maxContAddedLength, StringUtils.getStringWidth(String.valueOf(entry.getCountContAdded())));
@@ -193,7 +192,7 @@ public class WidgetEditsEntry extends WidgetListEntrySortable<PlayereditEntry>
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
+    public void render(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
     {
         if (this.header1 == null && (selected || this.isMouseOver(mouseX, mouseY)))
         {
@@ -234,43 +233,43 @@ public class WidgetEditsEntry extends WidgetListEntrySortable<PlayereditEntry>
         }
         else if (this.entry != null)
         {
-            this.drawString(x1 + 20, y, color, this.entry.getStack().getName().getString(), drawContext);
+            this.drawString(x1 + 20, y, color, this.entry.getStack().getHoverName().getString(), drawContext);
             this.drawString(x2, y, color, String.valueOf(this.entry.getCountBroken()), drawContext);
             this.drawString(x3, y, color, String.valueOf(this.entry.getCountPlaced()), drawContext);
             this.drawString(x4, y, color, String.valueOf(this.entry.getCountContAdded()), drawContext);
             this.drawString(x5, y, color, String.valueOf(this.entry.getCountContRemoved()), drawContext);
             this.drawString(x6, y, color, String.valueOf(this.entry.getCountTotal()), drawContext);
 
-            MatrixStack matrixStack = drawContext.getMatrices();
-            matrixStack.push();
+            PoseStack matrixStack = drawContext.pose();
+            matrixStack.pushPose();
             RenderUtils.enableDiffuseLightingGui3D();
 
             y = this.y + 3;
             RenderUtils.drawRect(x1, y, 16, 16, 0x20FFFFFF);
-            drawContext.drawItem(this.entry.getStack(), x1, y);
+            drawContext.renderItem(this.entry.getStack(), x1, y);
 
             RenderSystem.disableBlend();
             RenderUtils.disableDiffuseLighting();
-            matrixStack.pop();
+            matrixStack.popPose();
 
             super.render(mouseX, mouseY, selected, drawContext);
         }
     }
 
     @Override
-    public void postRenderHovered(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
+    public void postRenderHovered(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
     {
-        MatrixStack matrixStack = drawContext.getMatrices();
+        PoseStack matrixStack = drawContext.pose();
         if (this.entry != null)
         {
-            matrixStack.push();
+            matrixStack.pushPose();
             matrixStack.translate(0, 0, 200);
 
             String header1 = GuiBase.TXT_BOLD + StringUtils.translate(HEADERS[0]);
             String header2 = GuiBase.TXT_BOLD + StringUtils.translate(HEADERS[5]);
 
             ItemStack stack = this.entry.getStack();
-            String stackName = stack.getName().getString();
+            String stackName = stack.getHoverName().getString();
             int total = this.entry.getCountTotal();
             String strTotal = this.getFormattedCountString(total);
 
@@ -305,10 +304,10 @@ public class WidgetEditsEntry extends WidgetListEntrySortable<PlayereditEntry>
 
             RenderUtils.enableDiffuseLightingGui3D();
 
-            drawContext.drawItem(stack, x2, y1);
+            drawContext.renderItem(stack, x2, y1);
 
             RenderUtils.disableDiffuseLighting();
-            matrixStack.pop();
+            matrixStack.popPose();
         }
     }
 
@@ -336,7 +335,7 @@ public class WidgetEditsEntry extends WidgetListEntrySortable<PlayereditEntry>
             if (this.type == ButtonType.BLOCKS)
             {
                 EditListBlockedit editList = new EditListBlockedit(this.entry.getBlocks(), true);
-                GuiBase.openGui(new GuiBlockeditData(editList, this.entry.getStack().getItem().getTranslationKey(), listWidget.getGuiParent()));
+                GuiBase.openGui(new GuiBlockeditData(editList, this.entry.getStack().getItem().getDescriptionId(), listWidget.getGuiParent()));
             }
         }
 

@@ -2,14 +2,14 @@ package eu.minemania.watson.chat.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import fi.dy.masa.malilib.config.options.ConfigString;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.client.Minecraft;
+import net.minecraft.commands.CommandSourceStack;
 
 public class Command
 {
-    public static CommandDispatcher<ServerCommandSource> commandDispatcher;
+    public static CommandDispatcher<CommandSourceStack> commandDispatcher;
 
-    public static void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         ClientCommandManager.clearClientSideCommands();
         WatsonCommand.register(dispatcher);
@@ -18,7 +18,7 @@ public class Command
         CalcCommand.register(dispatcher);
         HighlightCommand.register(dispatcher);
 
-        if (MinecraftClient.getInstance().isIntegratedServerRunning())
+        if (Minecraft.getInstance().hasSingleplayerServer())
         {
 
         }
@@ -26,13 +26,13 @@ public class Command
         commandDispatcher = dispatcher;
     }
 
-    public static void reregisterWatsonCommand(CommandDispatcher<ServerCommandSource> dispatcher, ConfigString command)
+    public static void reregisterWatsonCommand(CommandDispatcher<CommandSourceStack> dispatcher, ConfigString command)
     {
         ClientCommandManager.getClientSideCommands().remove(command.getOldStringValue());
         CommandRemoval.removeCommand(dispatcher.getRoot(), command.getOldStringValue());
         WatsonCommand.register(dispatcher);
 
-        if (MinecraftClient.getInstance().isIntegratedServerRunning())
+        if (Minecraft.getInstance().hasSingleplayerServer())
         {
 
         }

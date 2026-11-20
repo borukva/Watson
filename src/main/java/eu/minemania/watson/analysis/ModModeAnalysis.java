@@ -2,10 +2,9 @@ package eu.minemania.watson.analysis;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.chat.IMatchedChatHandler;
 import eu.minemania.watson.config.Configs;
-import net.minecraft.text.MutableText;
 
 public class ModModeAnalysis extends Analysis
 {
@@ -28,12 +27,12 @@ public class ModModeAnalysis extends Analysis
         addMatchedChatHandler(Configs.Analysis.DUTYMODE_DISABLE, dutiesHandler);
     }
 
-    void changeModMode(MutableText chat, Matcher m)
+    void changeModMode(MutableComponent chat, Matcher m)
     {
         Configs.Generic.DISPLAYED.setBooleanValue(m.pattern().pattern().equals(Pattern.compile(Configs.Analysis.MODMODE_ENABLE.getStringValue()).pattern()));
     }
 
-    void changeDutyMode(MutableText chat, Matcher m)
+    void changeDutyMode(MutableComponent chat, Matcher m)
     {
         Configs.Generic.DISPLAYED.setBooleanValue(m.pattern().pattern().equals(Pattern.compile(Configs.Analysis.DUTYMODE_ENABLE.getStringValue()).pattern()));
     }

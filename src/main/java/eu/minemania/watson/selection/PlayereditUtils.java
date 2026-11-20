@@ -4,7 +4,16 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Optional;
-
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EntityTypeTags;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.Actions;
@@ -18,16 +27,6 @@ import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.ItemType;
 import fi.dy.masa.malilib.util.StringUtils;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.registry.tag.EntityTypeTags;
-import net.minecraft.util.Identifier;
-import net.minecraft.registry.Registries;
 
 public class PlayereditUtils
 {
@@ -144,7 +143,7 @@ public class PlayereditUtils
 
     public static ItemStack getItemStack(String blocks)
     {
-        Block block = Registries.BLOCK.get(Identifier.tryParse(blocks));
+        Block block = BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(blocks));
         if (block != Blocks.AIR)
         {
             if (block.equals(Blocks.WATER))
@@ -162,12 +161,12 @@ public class PlayereditUtils
         }
         else
         {
-            Item item = Registries.ITEM.get(Identifier.tryParse(blocks));
+            Item item = BuiltInRegistries.ITEM.getValue(ResourceLocation.tryParse(blocks));
             if (item != Items.AIR)
             {
                 return new ItemStack(item);
             }
-            Optional<EntityType<?>> entityType = EntityType.get(blocks);
+            Optional<EntityType<?>> entityType = EntityType.byString(blocks);
             if (entityType.isPresent())
             {
                 EntityType<?> entity = entityType.get();
@@ -203,7 +202,7 @@ public class PlayereditUtils
                 {
                     return new ItemStack(Items.TNT_MINECART);
                 }
-                else if (entity.isIn(EntityTypeTags.BOAT))
+                else if (entity.is(EntityTypeTags.BOAT))
                 {
                     return new ItemStack(Items.OAK_BOAT);
                 }
@@ -219,12 +218,12 @@ public class PlayereditUtils
                 {
                     if (entity.equals(EntityType.PLAYER))
                     {
-                        return new ItemStack(SpawnEggItem.forEntity(EntityType.VILLAGER));
+                        return new ItemStack(SpawnEggItem.byId(EntityType.VILLAGER));
                     }
-                    SpawnEggItem spawnEgg = SpawnEggItem.forEntity(entity);
+                    SpawnEggItem spawnEgg = SpawnEggItem.byId(entity);
                     if (spawnEgg == null)
                     {
-                        InfoUtils.showGuiMessage(MessageType.WARNING, "watson.error.entity.not_found", entity.getName().getString());
+                        InfoUtils.showGuiMessage(MessageType.WARNING, "watson.error.entity.not_found", entity.getDescription().getString());
                         if (Configs.Generic.DEBUG.getBooleanValue())
                         {
                             Watson.logger.warn(StringUtils.translate("watson.error.blockentity.not_found", blocks));

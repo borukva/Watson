@@ -24,11 +24,11 @@ import fi.dy.masa.malilib.hotkeys.IKeybind;
 import fi.dy.masa.malilib.hotkeys.KeyAction;
 import fi.dy.masa.malilib.hotkeys.KeyCallbackToggleBoolean;
 import fi.dy.masa.malilib.interfaces.IValueChangeCallback;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class KeyCallbacks
 {
-    public static void init(MinecraftClient mc)
+    public static void init(Minecraft mc)
     {
         IHotkeyCallback callbackHotkeys = new KeyCallbackHotkeys(mc);
         ValueChangeStringCallback valueChangeStringCallback = new ValueChangeStringCallback();
@@ -277,9 +277,9 @@ public class KeyCallbacks
 
     private static class KeyCallbackHotkeys implements IHotkeyCallback
     {
-        private final MinecraftClient mc;
+        private final Minecraft mc;
 
-        public KeyCallbackHotkeys(MinecraftClient mc)
+        public KeyCallbackHotkeys(Minecraft mc)
         {
             this.mc = mc;
         }
@@ -287,7 +287,7 @@ public class KeyCallbacks
         @Override
         public boolean onKeyAction(KeyAction action, IKeybind key)
         {
-            if (this.mc.player == null || this.mc.world == null)
+            if (this.mc.player == null || this.mc.level == null)
             {
                 return false;
             }

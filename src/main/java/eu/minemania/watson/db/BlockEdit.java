@@ -4,18 +4,28 @@ import java.util.HashMap;
 import java.util.Optional;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.render.RenderUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
-import net.minecraft.block.*;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.block.BlockRenderManager;
-import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.entity.EntityType;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.registry.Registries;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.block.AmethystBlock;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.DropExperienceBlock;
+import net.minecraft.world.level.block.RedStoneOreBlock;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.block.StandingSignBlock;
+import net.minecraft.world.level.block.WallSignBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class BlockEdit
 {
@@ -30,7 +40,7 @@ public class BlockEdit
     public String world;
     public PlayereditSet playereditSet;
     public boolean disabled;
-    private final BlockRenderManager blockModelShapes;
+    private final BlockRenderDispatcher blockModelShapes;
     protected boolean drawn;
     private HashMap<String,Object> additional;
 
@@ -45,8 +55,8 @@ public class BlockEdit
         this.z = z;
         this.block = block;
         this.world = world;
-        MinecraftClient mc = MinecraftClient.getInstance();
-        this.blockModelShapes = mc.getBlockRenderManager();
+        Minecraft mc = Minecraft.getInstance();
+        this.blockModelShapes = mc.getBlockRenderer();
     }
 
     public void setAdditional(HashMap<String,Object> additional)
@@ -61,7 +71,7 @@ public class BlockEdit
 
     public int drawOutline(BufferBuilder buffer)
     {
-        Block blocks = Registries.BLOCK.get(Identifier.tryParse(block.getName()));
+        Block blocks = BuiltInRegistries.BLOCK.getValue(ResourceLocation.tryParse(block.getName()));
         float lineWidth = block.getLineWidth();
         if (!blocks.getName().getString().toLowerCase().contains("air"))
         {
@@ -86,8 +96,8 @@ public class BlockEdit
         if (!block.getName().equals("minecraft:grass") && !block.getName().equals("minecraft:water") &&
                 !block.getName().equals("minecraft:lava"))
         {
-            BlockState state = blocks.getDefaultState();
-            BakedModel model = this.blockModelShapes.getModel(state);
+            BlockState state = blocks.defaultBlockState();
+            BakedModel model = this.blockModelShapes.getBlockModel(state);
             if (Configs.Lists.SMALLER_RENDER_BOX.getStrings().contains(block.getName()))
             {
                 RenderUtils.drawBlockBoundingBoxOutlinesBatchedLines(new BlockPos(x, y, z), color, -0.25, buffer);
@@ -96,7 +106,7 @@ public class BlockEdit
             {
                 if (isOreNotDrawn())
                 {
-                    if (blocks instanceof SignBlock || blocks instanceof WallSignBlock)
+                    if (blocks instanceof StandingSignBlock || blocks instanceof WallSignBlock)
                     {
                         if (Configs.Outlines.FULL_BLOCK_OUTLINE.getBooleanValue()) {
                             RenderUtils.drawFullBlockOutlinesBatched(x, y, z, color, buffer);
@@ -139,7 +149,7 @@ public class BlockEdit
 
     private void renderEntities(BufferBuilder buffer)
     {
-        Optional<EntityType<?>> entity = EntityType.get(block.getName());
+        Optional<EntityType<?>> entity = EntityType.byString(block.getName());
         Color4f color = block.getOverrideColor() != Color4f.ZERO && block.getOverrideColor() != null ? block.getOverrideColor() : block.getColor();
         if (entity.isPresent())
         {
@@ -193,6 +203,6 @@ public class BlockEdit
 
     private boolean isOreBlock(Block block)
     {
-        return block instanceof ExperienceDroppingBlock || block instanceof RedstoneOreBlock || block instanceof AmethystBlock || block.equals(Blocks.ANCIENT_DEBRIS) || block.equals(Blocks.GILDED_BLACKSTONE);
+        return block instanceof DropExperienceBlock || block instanceof RedStoneOreBlock || block instanceof AmethystBlock || block.equals(Blocks.ANCIENT_DEBRIS) || block.equals(Blocks.GILDED_BLACKSTONE);
     }
 }

@@ -17,7 +17,7 @@ import fi.dy.masa.malilib.interfaces.IInitializationHandler;
 import fi.dy.masa.malilib.interfaces.IRenderer;
 import fi.dy.masa.malilib.registry.Registry;
 import fi.dy.masa.malilib.util.data.ModInfo;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class InitHandler implements IInitializationHandler
 {
@@ -43,7 +43,7 @@ public class InitHandler implements IInitializationHandler
         WorldLoadHandler.getInstance().registerWorldLoadPreHandler(listener);
         WorldLoadHandler.getInstance().registerWorldLoadPostHandler(listener);
 
-        KeyCallbacks.init(MinecraftClient.getInstance());
+        KeyCallbacks.init(Minecraft.getInstance());
 
         DataManager.getPlayereditsBaseDirectory();
         DataManager.registerPayloads();

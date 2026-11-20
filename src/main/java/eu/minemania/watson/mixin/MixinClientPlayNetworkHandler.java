@@ -2,7 +2,6 @@ package eu.minemania.watson.mixin;
 
 import com.mojang.brigadier.StringReader;
 import eu.minemania.watson.chat.command.ClientCommandManager;
-import net.minecraft.client.network.ClientConnectionState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -11,33 +10,34 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.brigadier.CommandDispatcher;
 import eu.minemania.watson.chat.command.Command;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.packet.s2c.play.CommandTreeS2CPacket;
-import net.minecraft.network.ClientConnection;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundCommandsPacket;
 
-@Mixin(ClientPlayNetworkHandler.class)
+@Mixin(ClientPacketListener.class)
 public abstract class MixinClientPlayNetworkHandler
 {
     @Shadow
-    private CommandDispatcher<ServerCommandSource> commandDispatcher;
+    private CommandDispatcher<CommandSourceStack> commands;
 
     @SuppressWarnings("unchecked")
     @Inject(method = "<init>", at = @At("RETURN"))
-    public void onInit(MinecraftClient client, ClientConnection clientConnection, ClientConnectionState clientConnectionState, CallbackInfo ci)
+    public void onInit(Minecraft client, Connection clientConnection, CommonListenerCookie clientConnectionState, CallbackInfo ci)
     {
-        Command.registerCommands((CommandDispatcher<ServerCommandSource>) (Object) commandDispatcher);
+        Command.registerCommands((CommandDispatcher<CommandSourceStack>) (Object) commands);
     }
 
     @SuppressWarnings("unchecked")
-    @Inject(method = "onCommandTree", at = @At("TAIL"))
-    public void onOnCommandTree(CommandTreeS2CPacket packet, CallbackInfo ci)
+    @Inject(method = "handleCommands", at = @At("TAIL"))
+    public void onOnCommandTree(ClientboundCommandsPacket packet, CallbackInfo ci)
     {
-        Command.registerCommands((CommandDispatcher<ServerCommandSource>) (Object) commandDispatcher);
+        Command.registerCommands((CommandDispatcher<CommandSourceStack>) (Object) commands);
     }
 
-    @ModifyVariable(method = "sendChatCommand", at = @At("HEAD"), argsOnly = true)
+    @ModifyVariable(method = "sendCommand", at = @At("HEAD"), argsOnly = true)
     private String onSendCommand(String message)
     {
         if ((message.startsWith("pr l") || message.startsWith("pr i")) && !message.contains("-extended"))
@@ -48,7 +48,7 @@ public abstract class MixinClientPlayNetworkHandler
         return message;
     }
 
-    @Inject(method = "sendChatCommand", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "sendCommand", at = @At("HEAD"), cancellable = true)
     private void sendCommand(String message, CallbackInfo ci)
     {
         StringReader reader = new StringReader(message);

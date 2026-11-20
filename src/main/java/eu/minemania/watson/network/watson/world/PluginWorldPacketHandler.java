@@ -5,14 +5,14 @@ import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public abstract class PluginWorldPacketHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
+public abstract class PluginWorldPacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final Identifier CHANNEL = Identifier.of("watson","world");
+    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("watson","world");
     private boolean registered;
 
     private final static PluginWorldPacketHandler<PluginWorldPacket.Payload> INSTANCE = new PluginWorldPacketHandler<>()
@@ -30,19 +30,19 @@ public abstract class PluginWorldPacketHandler<T extends CustomPayload> implemen
     }
 
     @Override
-    public Identifier getPayloadChannel()
+    public ResourceLocation getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(Identifier channel)
+    public boolean isPlayRegistered(ResourceLocation channel)
     {
         return registered;
     }
 
     @Override
-    public void setPlayRegistered(Identifier channel)
+    public void setPlayRegistered(ResourceLocation channel)
     {
         if (channel.equals(this.getPayloadChannel()))
         {
@@ -51,7 +51,7 @@ public abstract class PluginWorldPacketHandler<T extends CustomPayload> implemen
     }
 
     @Override
-    public void reset(Identifier channel)
+    public void reset(ResourceLocation channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -87,7 +87,7 @@ public abstract class PluginWorldPacketHandler<T extends CustomPayload> implemen
     }
 
     @Override
-    public void encodeWithSplitter(PacketByteBuf buf, ClientPlayNetworkHandler handler)
+    public void encodeWithSplitter(FriendlyByteBuf buf, ClientPacketListener handler)
     {
         // NO-OP
     }

@@ -4,17 +4,16 @@ import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import com.mojang.blaze3d.platform.NativeImage;
 import eu.minemania.watson.Watson;
-import net.minecraft.client.texture.NativeImage;
-import net.minecraft.client.util.ScreenshotRecorder;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
-import net.minecraft.client.MinecraftClient;
 
 public class Screenshot
 {
@@ -28,25 +27,25 @@ public class Screenshot
         String player2 = (String) DataManager.getEditSelection().getVariables().get("player");
         String subdirectoryName = (player2 != null && !player2.isEmpty() && Configs.Generic.SS_PLAYER_DIRECTORY.getBooleanValue()) ? player2 : new SimpleDateFormat(Configs.Generic.SS_DATE_DIRECTORY.getStringValue()).format(now);
         subdirectoryName = subdirectoryName.replaceAll(":", "-").replaceAll(" ", "-");
-        MinecraftClient mc = MinecraftClient.getInstance();
-        File screenshotsDir = new File(mc.runDirectory, "screenshots");
+        Minecraft mc = Minecraft.getInstance();
+        File screenshotsDir = new File(mc.gameDirectory, "screenshots");
         File subdirectory = new File(screenshotsDir, subdirectoryName);
         File file = Screenshot.getUniqueFilename(subdirectory, player2, now);
         Screenshot.save(file, mc);
     }
 
-    public static void save(File file, MinecraftClient mc)
+    public static void save(File file, Minecraft mc)
     {
-        NativeImage nativeImage = ScreenshotRecorder.takeScreenshot(mc.getFramebuffer());
-        Util.getIoWorkerExecutor().execute(() -> {
+        NativeImage nativeImage = net.minecraft.client.Screenshot.takeScreenshot(mc.getMainRenderTarget());
+        Util.ioPool().execute(() -> {
             try {
-                nativeImage.writeTo(file);
-                MutableText text = Text.literal(file.getName()).formatted(Formatting.UNDERLINE).styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
-                mc.inGameHud.getChatHud().addMessage(Text.translatable("screenshot.success", text));
+                nativeImage.writeToFile(file);
+                MutableComponent text = Component.literal(file.getName()).withStyle(ChatFormatting.UNDERLINE).withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_FILE, file.getAbsolutePath())));
+                mc.gui.getChat().addMessage(Component.translatable("screenshot.success", text));
             }
             catch (Exception text) {
                 Watson.logger.warn("Couldn't save screenshot", (Throwable)text);
-                mc.inGameHud.getChatHud().addMessage(Text.translatable("screenshot.failure", text.getMessage()));
+                mc.gui.getChat().addMessage(Component.translatable("screenshot.failure", text.getMessage()));
             }
             finally {
                 nativeImage.close();

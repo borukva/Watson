@@ -11,7 +11,7 @@ import eu.minemania.watson.db.WatsonBlockRegistery;
 import eu.minemania.watson.scheduler.SyncTaskQueue;
 import eu.minemania.watson.scheduler.tasks.AddBlockEditTask;
 import fi.dy.masa.malilib.util.data.Color4f;
-import net.minecraft.text.*;
+import net.minecraft.network.chat.MutableComponent;
 import java.util.regex.Matcher;
 
 public class PrismAnalysis extends Analysis
@@ -37,7 +37,7 @@ public class PrismAnalysis extends Analysis
         });
     }
 
-    void prData(MutableText chat, Matcher m)
+    void prData(MutableComponent chat, Matcher m)
     {
         try
         {
@@ -190,7 +190,7 @@ public class PrismAnalysis extends Analysis
         }
     }
 
-    void prPage(MutableText chat, Matcher m)
+    void prPage(MutableComponent chat, Matcher m)
     {
         int currentPage = Integer.parseInt(m.group("current"));
         int pageCount = Integer.parseInt(m.group("max"));

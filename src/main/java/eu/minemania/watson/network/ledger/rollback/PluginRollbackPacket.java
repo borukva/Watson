@@ -1,22 +1,22 @@
 package eu.minemania.watson.network.ledger.rollback;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record PluginRollbackPacket(boolean restore, String searchData) implements CustomPayload
+public record PluginRollbackPacket(boolean restore, String searchData) implements CustomPacketPayload
 {
-    public static final Id<PluginRollbackPacket> ID = new Id<>(PluginRollbackPacketHandler.CHANNEL);
-    public static final PacketCodec<PacketByteBuf, PluginRollbackPacket> CODEC = CustomPayload.codecOf(PluginRollbackPacket::write, null);
+    public static final Type<PluginRollbackPacket> ID = new Type<>(PluginRollbackPacketHandler.CHANNEL);
+    public static final StreamCodec<FriendlyByteBuf, PluginRollbackPacket> CODEC = CustomPacketPayload.codec(PluginRollbackPacket::write, null);
 
-    public void write(PacketByteBuf output)
+    public void write(FriendlyByteBuf output)
     {
         output.writeBoolean(restore);
-        output.writeString(searchData);
+        output.writeUtf(searchData);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId()
+    public Type<? extends CustomPacketPayload> type()
     {
         return ID;
     }

@@ -4,11 +4,11 @@ import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.render.OverlayRenderer;
 import eu.minemania.watson.render.WatsonRenderer;
 import fi.dy.masa.malilib.interfaces.IRenderer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.Fog;
-import net.minecraft.client.render.Frustum;
-import net.minecraft.util.profiler.Profiler;
+import net.minecraft.client.Camera;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.FogParameters;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.util.profiling.ProfilerFiller;
 import org.joml.Matrix4f;
 
 public class RenderHandler implements IRenderer
@@ -21,11 +21,11 @@ public class RenderHandler implements IRenderer
     }
 
     @Override
-    public void onRenderWorldLastAdvanced(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, Fog fog, Profiler profiler)
+    public void onRenderWorldLastAdvanced(Matrix4f posMatrix, Matrix4f projMatrix, Frustum frustum, Camera camera, FogParameters fog, ProfilerFiller profiler)
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
+        Minecraft mc = Minecraft.getInstance();
 
-        if (Configs.Generic.ENABLED.getBooleanValue() && mc.world != null && mc.player != null)
+        if (Configs.Generic.ENABLED.getBooleanValue() && mc.level != null && mc.player != null)
         {
             OverlayRenderer.renderOverlays(mc);
             WatsonRenderer.getInstance().piecewiseRenderEntities(mc, profiler, fog);

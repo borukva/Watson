@@ -3,7 +3,7 @@ package eu.minemania.watson.analysis;
 import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import net.minecraft.network.chat.MutableComponent;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import eu.minemania.watson.Watson;
@@ -11,14 +11,13 @@ import eu.minemania.watson.chat.IChatHandler;
 import eu.minemania.watson.chat.IMatchedChatHandler;
 import eu.minemania.watson.config.Configs;
 import fi.dy.masa.malilib.config.options.ConfigString;
-import net.minecraft.text.MutableText;
 
 public class Analysis implements IChatHandler
 {
     protected static ListMultimap<String, IMatchedChatHandler> m = ArrayListMultimap.create();
     public static int colorBlock = 0;
 
-    public boolean dispatchMatchedChat(MutableText chat)
+    public boolean dispatchMatchedChat(MutableComponent chat)
     {
         String unformatted = chat.getString();
         unformatted = unformatted.replaceAll("\u00A7.", "");
@@ -60,7 +59,7 @@ public class Analysis implements IChatHandler
     }
 
     @Override
-    public boolean onChat(MutableText chat)
+    public boolean onChat(MutableComponent chat)
     {
         return dispatchMatchedChat(chat);
     }

@@ -1,22 +1,22 @@
 package eu.minemania.watson.network.ledger.response;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 public class PluginResponsePacket
 {
-    private Identifier identifier;
+    private ResourceLocation identifier;
     private int responseCode;
 
-    public PluginResponsePacket(Identifier identifier, int responseCode)
+    public PluginResponsePacket(ResourceLocation identifier, int responseCode)
     {
         this.identifier = identifier;
         this.responseCode = responseCode;
     }
 
-    public Identifier getIdentifier()
+    public ResourceLocation getIdentifier()
     {
         return this.identifier;
     }
@@ -26,18 +26,18 @@ public class PluginResponsePacket
         return this.responseCode;
     }
 
-    public record Payload(PluginResponsePacket content) implements CustomPayload
+    public record Payload(PluginResponsePacket content) implements CustomPacketPayload
     {
-        public static final Id<Payload> ID = new Id<>(PluginResponsePacketHandler.CHANNEL);
-        public static final PacketCodec<PacketByteBuf, Payload> CODEC = CustomPayload.codecOf(null, Payload::new);
+        public static final Type<Payload> ID = new Type<>(PluginResponsePacketHandler.CHANNEL);
+        public static final StreamCodec<FriendlyByteBuf, Payload> CODEC = CustomPacketPayload.codec(null, Payload::new);
 
-        public Payload(PacketByteBuf input)
+        public Payload(FriendlyByteBuf input)
         {
-            this(new PluginResponsePacket(input.readIdentifier(), input.readInt()));
+            this(new PluginResponsePacket(input.readResourceLocation(), input.readInt()));
         }
 
         @Override
-        public Id<Payload> getId()
+        public Type<Payload> type()
         {
             return ID;
         }

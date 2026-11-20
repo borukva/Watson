@@ -13,16 +13,15 @@ import fi.dy.masa.malilib.gui.interfaces.IStringListConsumer;
 import fi.dy.masa.malilib.gui.interfaces.ITextFieldListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetInfoIcon;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
 
 public class GuiLedger extends GuiBase
 {
@@ -112,8 +111,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 4;
             this.addWidget(new WidgetInfoIcon(x + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.range"));
 
-            this.textFieldRange = new GuiTextFieldInteger(x + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldRange.setText(String.valueOf(ledgerInfo.getRange()));
+            this.textFieldRange = new GuiTextFieldInteger(x + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldRange.setValue(String.valueOf(ledgerInfo.getRange()));
             this.addTextField(this.textFieldRange, new RangeTextFieldListener(this));
 
             label = StringUtils.translate("watson.gui.label.ledger.title.source"); //Source
@@ -121,8 +120,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 10 + textFieldRange.getWidth();
             this.addWidget(new WidgetInfoIcon(textFieldRange.getX() + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.source"));
 
-            this.textFieldSource = new GuiTextFieldGeneric(textFieldRange.getX() + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldSource.setText(ledgerInfo.getSources());
+            this.textFieldSource = new GuiTextFieldGeneric(textFieldRange.getX() + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldSource.setValue(ledgerInfo.getSources());
             this.addTextField(this.textFieldSource, new SourceTextFieldListener(this));
 
             y += 30;
@@ -132,8 +131,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 4;
             this.addWidget(new WidgetInfoIcon(x + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.time"));
 
-            this.textFieldTimeBefore = new GuiTextFieldGeneric(x + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldTimeBefore.setText(ledgerInfo.getTimeBefore());
+            this.textFieldTimeBefore = new GuiTextFieldGeneric(x + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldTimeBefore.setValue(ledgerInfo.getTimeBefore());
             this.addTextField(this.textFieldTimeBefore, new TimeBeforeTextFieldListener(this));
 
             label = StringUtils.translate("watson.gui.label.ledger.title.time.after"); //Time after
@@ -141,8 +140,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 10 + textFieldTimeBefore.getWidth();
             this.addWidget(new WidgetInfoIcon(textFieldTimeBefore.getX() + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.time"));
 
-            this.textFieldTimeAfter = new GuiTextFieldGeneric(textFieldTimeBefore.getX() + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldTimeAfter.setText(ledgerInfo.getTimeAfter());
+            this.textFieldTimeAfter = new GuiTextFieldGeneric(textFieldTimeBefore.getX() + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldTimeAfter.setValue(ledgerInfo.getTimeAfter());
             this.addTextField(this.textFieldTimeAfter, new TimeAfterTextFieldListener(this));
         }
 
@@ -153,8 +152,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 4;
             this.addWidget(new WidgetInfoIcon(x + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.coords"));
 
-            this.textFieldX = new GuiTextFieldInteger(x + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldX.setText(String.valueOf(ledgerInfo.getX()));
+            this.textFieldX = new GuiTextFieldInteger(x + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldX.setValue(String.valueOf(ledgerInfo.getX()));
             this.addTextField(this.textFieldX, new XTextFieldListener(this));
 
             label = "Y"; //Y
@@ -162,8 +161,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 10 + textFieldX.getWidth();
             this.addWidget(new WidgetInfoIcon(textFieldX.getX() + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.coords"));
 
-            this.textFieldY = new GuiTextFieldInteger(textFieldX.getX() + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldY.setText(String.valueOf(ledgerInfo.getY()));
+            this.textFieldY = new GuiTextFieldInteger(textFieldX.getX() + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldY.setValue(String.valueOf(ledgerInfo.getY()));
             this.addTextField(this.textFieldY, new YTextFieldListener(this));
 
             label = "Z"; //Z
@@ -171,8 +170,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 10 + textFieldY.getWidth();
             this.addWidget(new WidgetInfoIcon(textFieldY.getX() + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.coords"));
 
-            this.textFieldZ = new GuiTextFieldInteger(textFieldY.getX() + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldZ.setText(String.valueOf(ledgerInfo.getZ()));
+            this.textFieldZ = new GuiTextFieldInteger(textFieldY.getX() + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldZ.setValue(String.valueOf(ledgerInfo.getZ()));
             this.addTextField(this.textFieldZ, new ZTextFieldListener(this));
         }
 
@@ -185,8 +184,8 @@ public class GuiLedger extends GuiBase
             offset = this.getStringWidth(label) + 4;
             this.addWidget(new WidgetInfoIcon(x + offset, y + 4, Icons.INFO_11, "watson.gui.label.ledger.info.pages"));
 
-            this.textFieldPages = new GuiTextFieldInteger(x + offset + 20, y + 2, width, 14, this.textRenderer);
-            this.textFieldPages.setText(String.valueOf(ledgerInfo.getPages()));
+            this.textFieldPages = new GuiTextFieldInteger(x + offset + 20, y + 2, width, 14, this.font);
+            this.textFieldPages.setValue(String.valueOf(ledgerInfo.getPages()));
             this.addTextField(this.textFieldPages, new PagesTextFieldListener(this));
         }
 
@@ -246,17 +245,17 @@ public class GuiLedger extends GuiBase
     private ArrayList<String> getDimensions(String dimensionText)
     {
         ArrayList<String> currentDimensions = new ArrayList<>();
-        ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
+        ClientPacketListener networkHandler = mc.getConnection();
 
         if (networkHandler == null)
         {
             return currentDimensions;
         }
 
-        Set<RegistryKey<World>> dimensions = networkHandler.getWorldKeys();
-        for (RegistryKey<World> dimension : dimensions)
+        Set<ResourceKey<Level>> dimensions = networkHandler.levels();
+        for (ResourceKey<Level> dimension : dimensions)
         {
-            String dimensionString = dimension.getValue().toString();
+            String dimensionString = dimension.location().toString();
             String invertedDimensionString = "!"+dimensionString;
             if (!dimensionText.isEmpty() && (dimensionString.equals(dimensionText) || invertedDimensionString.equals(dimensionText)))
             {
@@ -265,7 +264,7 @@ public class GuiLedger extends GuiBase
             }
             else if (dimensionText.isEmpty())
             {
-                currentDimensions.add(dimension.getValue().toString());
+                currentDimensions.add(dimension.location().toString());
             }
         }
 
@@ -517,7 +516,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setSources(textField.getText());
+                parent.ledgerInfo.setSources(textField.getValue());
             }
             catch (Exception e)
             {
@@ -542,7 +541,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setTimeBefore(textField.getText());
+                parent.ledgerInfo.setTimeBefore(textField.getValue());
             }
             catch (Exception e)
             {
@@ -567,7 +566,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setTimeAfter(textField.getText());
+                parent.ledgerInfo.setTimeAfter(textField.getValue());
             }
             catch (Exception e)
             {
@@ -592,7 +591,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setRange(Integer.parseInt(textField.getText()));
+                parent.ledgerInfo.setRange(Integer.parseInt(textField.getValue()));
             }
             catch (Exception ignored)
             {}
@@ -615,7 +614,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setX(Integer.parseInt(textField.getText()));
+                parent.ledgerInfo.setX(Integer.parseInt(textField.getValue()));
             }
             catch (Exception ignored)
             {}
@@ -638,7 +637,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setY(Integer.parseInt(textField.getText()));
+                parent.ledgerInfo.setY(Integer.parseInt(textField.getValue()));
             }
             catch (Exception ignored)
             {}
@@ -661,7 +660,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setZ(Integer.parseInt(textField.getText()));
+                parent.ledgerInfo.setZ(Integer.parseInt(textField.getValue()));
             }
             catch (Exception ignored)
             {}
@@ -684,7 +683,7 @@ public class GuiLedger extends GuiBase
         {
             try
             {
-                parent.ledgerInfo.setPages(Integer.parseInt(textField.getText()));
+                parent.ledgerInfo.setPages(Integer.parseInt(textField.getValue()));
             }
             catch (Exception ignored)
             {}
@@ -952,11 +951,11 @@ public class GuiLedger extends GuiBase
                 int z = ledgerInfo.getZ();
                 int pages = ledgerInfo.getPages();
                 RolledbackMode rolledBack = ledgerInfo.getRolledBack();
-                MinecraftClient mc = parent.mc;
+                Minecraft mc = parent.mc;
 
                 switch (ledgerInfo.getLedgerMode())
                 {
-                    case INSPECT -> DataManager.getInspectHandler().encodePayload(BlockPos.ofFloored(x, y, z), pages);
+                    case INSPECT -> DataManager.getInspectHandler().encodePayload(BlockPos.containing(x, y, z), pages);
                     case PURGE -> DataManager.getPurgeHandler().encodePayload(action, dimension, block, entityType, item, tag, range, source, timeBefore, timeAfter);
                     case ROLLBACK -> DataManager.getRollbackHandler().encodePayload(action, dimension, block, entityType, item, tag, range, source, timeBefore, timeAfter, false);
                     case RESTORE -> DataManager.getRollbackHandler().encodePayload(action, dimension, block, entityType, item, tag, range, source, timeBefore, timeAfter, true);

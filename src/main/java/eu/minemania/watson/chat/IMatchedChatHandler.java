@@ -1,10 +1,9 @@
 package eu.minemania.watson.chat;
 
 import java.util.regex.Matcher;
-
-import net.minecraft.text.MutableText;
+import net.minecraft.network.chat.MutableComponent;
 
 public interface IMatchedChatHandler
 {
-    boolean onMatchedChat(MutableText chat, Matcher m);
+    boolean onMatchedChat(MutableComponent chat, Matcher m);
 }

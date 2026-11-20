@@ -1,22 +1,22 @@
 package eu.minemania.watson.network.ledger.search;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record PluginSearchPacket(String searchData, int pages) implements CustomPayload
+public record PluginSearchPacket(String searchData, int pages) implements CustomPacketPayload
 {
-    public static final Id<PluginSearchPacket> ID = new Id<>(PluginSearchPacketHandler.CHANNEL);
-    public static final PacketCodec<PacketByteBuf, PluginSearchPacket> CODEC = CustomPayload.codecOf(PluginSearchPacket::write, null);
+    public static final Type<PluginSearchPacket> ID = new Type<>(PluginSearchPacketHandler.CHANNEL);
+    public static final StreamCodec<FriendlyByteBuf, PluginSearchPacket> CODEC = CustomPacketPayload.codec(PluginSearchPacket::write, null);
 
-    public void write(PacketByteBuf output)
+    public void write(FriendlyByteBuf output)
     {
-        output.writeString(searchData);
+        output.writeUtf(searchData);
         output.writeInt(pages);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId()
+    public Type<? extends CustomPacketPayload> type()
     {
         return ID;
     }

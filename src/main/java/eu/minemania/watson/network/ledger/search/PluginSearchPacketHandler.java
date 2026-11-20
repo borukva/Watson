@@ -6,16 +6,15 @@ import eu.minemania.watson.data.LedgerSearch;
 import eu.minemania.watson.gui.GuiLedger.ButtonListenerRolledback.RolledbackMode;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import java.util.List;
 
-public abstract class PluginSearchPacketHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
+public abstract class PluginSearchPacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final Identifier CHANNEL = Identifier.of("ledger","search");
+    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("ledger","search");
     private boolean registered = false;
 
     private final static PluginSearchPacketHandler<PluginSearchPacket> INSTANCE = new PluginSearchPacketHandler<>()
@@ -33,19 +32,19 @@ public abstract class PluginSearchPacketHandler<T extends CustomPayload> impleme
     }
 
     @Override
-    public Identifier getPayloadChannel()
+    public ResourceLocation getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(Identifier channel)
+    public boolean isPlayRegistered(ResourceLocation channel)
     {
         return this.registered;
     }
 
     @Override
-    public void setPlayRegistered(Identifier channel)
+    public void setPlayRegistered(ResourceLocation channel)
     {
         if (channel.equals(CHANNEL))
         {
@@ -54,7 +53,7 @@ public abstract class PluginSearchPacketHandler<T extends CustomPayload> impleme
     }
 
     @Override
-    public void reset(Identifier channel)
+    public void reset(ResourceLocation channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -88,7 +87,7 @@ public abstract class PluginSearchPacketHandler<T extends CustomPayload> impleme
     }
 
     @Override
-    public void encodeWithSplitter(PacketByteBuf buf, ClientPlayNetworkHandler handler)
+    public void encodeWithSplitter(FriendlyByteBuf buf, ClientPacketListener handler)
     {
         // NO-OP
     }

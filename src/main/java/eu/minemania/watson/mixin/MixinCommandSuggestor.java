@@ -13,34 +13,34 @@ import com.mojang.brigadier.StringReader;
 
 import eu.minemania.watson.chat.command.ClientCommandManager;
 import eu.minemania.watson.interfaces.ITextFieldWidget;
-import net.minecraft.client.gui.screen.ChatInputSuggestor;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.command.CommandSource;
+import net.minecraft.client.gui.components.CommandSuggestions;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.commands.SharedSuggestionProvider;
 
-@Mixin(ChatInputSuggestor.class)
+@Mixin(CommandSuggestions.class)
 public abstract class MixinCommandSuggestor
 {
-    @Accessor("textField")
-    abstract TextFieldWidget watson_getTextField();
+    @Accessor("input")
+    abstract EditBox watson_getTextField();
     @Shadow
-    private ParseResults<CommandSource> parse;
+    private ParseResults<SharedSuggestionProvider> currentParse;
 
     @Unique
     private int oldMaxLength;
     @Unique
     private boolean wasClientCommand = false;
 
-    @Inject(method = "refresh", at = @At("RETURN"))
+    @Inject(method = "updateCommandInfo", at = @At("RETURN"))
     public void onRefresh(CallbackInfo ci)
     {
         boolean isClientCommand;
-        if (parse == null)
+        if (currentParse == null)
         {
             isClientCommand = false;
         }
         else
         {
-            StringReader reader = new StringReader(parse.getReader().getString());
+            StringReader reader = new StringReader(currentParse.getReader().getString());
             reader.skip(); // /
             String command = reader.canRead() ? reader.readUnquotedString() : "";
             isClientCommand = ClientCommandManager.isClientSideCommand(command);

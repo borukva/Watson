@@ -4,15 +4,15 @@ import eu.minemania.watson.Watson;
 import eu.minemania.watson.config.Configs;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public abstract class PluginInspectPacketHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
+public abstract class PluginInspectPacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final Identifier CHANNEL = Identifier.of("ledger","inspect");
+    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("ledger","inspect");
     private boolean registered = false;
 
     private final static PluginInspectPacketHandler<PluginInspectPacket> INSTANCE = new PluginInspectPacketHandler<>()
@@ -30,19 +30,19 @@ public abstract class PluginInspectPacketHandler<T extends CustomPayload> implem
     }
 
     @Override
-    public Identifier getPayloadChannel()
+    public ResourceLocation getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(Identifier channel)
+    public boolean isPlayRegistered(ResourceLocation channel)
     {
         return this.registered;
     }
 
     @Override
-    public void setPlayRegistered(Identifier channel)
+    public void setPlayRegistered(ResourceLocation channel)
     {
         if (channel.equals(CHANNEL))
         {
@@ -51,7 +51,7 @@ public abstract class PluginInspectPacketHandler<T extends CustomPayload> implem
     }
 
     @Override
-    public void reset(Identifier channel)
+    public void reset(ResourceLocation channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -74,7 +74,7 @@ public abstract class PluginInspectPacketHandler<T extends CustomPayload> implem
     }
 
     @Override
-    public void encodeWithSplitter(PacketByteBuf buf, ClientPlayNetworkHandler handler)
+    public void encodeWithSplitter(FriendlyByteBuf buf, ClientPacketListener handler)
     {
         // NO-OP
     }

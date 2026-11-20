@@ -1,15 +1,15 @@
 package eu.minemania.watson.network.watson.world;
 
 import com.google.common.base.Charsets;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public class PluginWorldPacket
 {
     private String world;
 
-    public PluginWorldPacket(String world, PacketByteBuf buf)
+    public PluginWorldPacket(String world, FriendlyByteBuf buf)
     {
         this.world = world;
         buf.readBytes(buf.readableBytes());
@@ -20,18 +20,18 @@ public class PluginWorldPacket
         return this.world;
     }
 
-    public record Payload(PluginWorldPacket content) implements CustomPayload
+    public record Payload(PluginWorldPacket content) implements CustomPacketPayload
     {
-        public static final Id<Payload> ID = new Id<>(PluginWorldPacketHandler.CHANNEL);
-        public static final PacketCodec<PacketByteBuf, Payload> CODEC = CustomPayload.codecOf(null, Payload::new);
+        public static final Type<Payload> ID = new Type<>(PluginWorldPacketHandler.CHANNEL);
+        public static final StreamCodec<FriendlyByteBuf, Payload> CODEC = CustomPacketPayload.codec(null, Payload::new);
 
-        public Payload(PacketByteBuf buf)
+        public Payload(FriendlyByteBuf buf)
         {
             this(new PluginWorldPacket(buf.toString(Charsets.UTF_8), buf));
         }
 
         @Override
-        public Id<Payload> getId()
+        public Type<Payload> type()
         {
             return ID;
         }

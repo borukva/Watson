@@ -18,7 +18,7 @@ public class PlayereditSorter implements Comparator<PlayereditEntry>
     {
         boolean reverse = this.edits.getSortInReverse();
         SortCriteria sortCriteria = this.edits.getSortCriteria();
-        int nameCompare = entry1.getStack().getName().getString().compareTo(entry2.getStack().getName().getString());
+        int nameCompare = entry1.getStack().getHoverName().getString().compareTo(entry2.getStack().getHoverName().getString());
 
         if (sortCriteria == SortCriteria.COUNT_TOTAL)
         {

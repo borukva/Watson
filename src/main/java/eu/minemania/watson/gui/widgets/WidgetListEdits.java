@@ -3,7 +3,10 @@ package eu.minemania.watson.gui.widgets;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
 import com.google.common.collect.ImmutableList;
 import eu.minemania.watson.gui.GuiEdits;
 import eu.minemania.watson.gui.Icons;
@@ -12,10 +15,6 @@ import eu.minemania.watson.selection.PlayereditSorter;
 import fi.dy.masa.malilib.gui.LeftRight;
 import fi.dy.masa.malilib.gui.widgets.WidgetListBase;
 import fi.dy.masa.malilib.gui.widgets.WidgetSearchBar;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
-import net.minecraft.registry.Registries;
 
 public class WidgetListEdits extends WidgetListBase<PlayereditEntry, WidgetEditsEntry>
 {
@@ -42,7 +41,7 @@ public class WidgetListEdits extends WidgetListBase<PlayereditEntry, WidgetEdits
     }
 
     @Override
-    public void drawContents(DrawContext drawContext, int mouseX, int mouseY, float partialTicks)
+    public void drawContents(GuiGraphics drawContext, int mouseX, int mouseY, float partialTicks)
     {
         super.drawContents(drawContext, mouseX, mouseY, partialTicks);
         lastScrollbarPosition = this.scrollBar.getValue();
@@ -84,15 +83,15 @@ public class WidgetListEdits extends WidgetListBase<PlayereditEntry, WidgetEdits
     protected List<String> getEntryStringsForFilter(PlayereditEntry entry)
     {
         ItemStack stack = entry.getStack();
-        Identifier rl = Registries.ITEM.getId(stack.getItem());
+        ResourceLocation rl = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
         if (rl != null)
         {
-            return ImmutableList.of(stack.getName().getString().toLowerCase(), rl.toString().toLowerCase());
+            return ImmutableList.of(stack.getHoverName().getString().toLowerCase(), rl.toString().toLowerCase());
         }
         else
         {
-            return ImmutableList.of(stack.getName().getString().toLowerCase());
+            return ImmutableList.of(stack.getHoverName().getString().toLowerCase());
         }
     }
 

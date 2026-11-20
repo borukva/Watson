@@ -19,20 +19,19 @@ import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.data.Color4f;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.util.Mth;
 
-import static net.minecraft.command.argument.BlockPosArgumentType.blockPos;
-import static net.minecraft.command.argument.BlockPosArgumentType.getBlockPos;
-import static net.minecraft.server.command.CommandManager.literal;
-import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos;
+import static net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos;
+import static net.minecraft.commands.Commands.literal;
+import static net.minecraft.commands.Commands.argument;
 import static com.mojang.brigadier.arguments.StringArgumentType.word;
 import static com.mojang.brigadier.arguments.StringArgumentType.string;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
@@ -48,10 +47,10 @@ import static com.mojang.brigadier.arguments.DoubleArgumentType.getDouble;
 
 public class WatsonCommand extends WatsonCommandBase
 {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         ClientCommandManager.addClientSideCommand(Configs.Generic.WATSON_PREFIX.getStringValue());
-        LiteralArgumentBuilder<ServerCommandSource> watson = literal(Configs.Generic.WATSON_PREFIX.getStringValue()).executes(WatsonCommand::help)
+        LiteralArgumentBuilder<CommandSourceStack> watson = literal(Configs.Generic.WATSON_PREFIX.getStringValue()).executes(WatsonCommand::help)
                 .then(literal("help").executes(WatsonCommand::help))
                 .then(literal("clear").executes(WatsonCommand::clear))
                 .then(literal("ratio").executes(WatsonCommand::ratio))
@@ -172,26 +171,26 @@ public class WatsonCommand extends WatsonCommandBase
         dispatcher.register(watson);
     }
 
-    private static int clear(CommandContext<ServerCommandSource> context)
+    private static int clear(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().clearBlockEditSet();
         CoreProtectAnalysis.reset();
         return 1;
     }
 
-    private static int ratio(CommandContext<ServerCommandSource> context)
+    private static int ratio(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().getBlockEditSet().getOreDB().showRatios();
         return 1;
     }
 
-    private static int servertime(CommandContext<ServerCommandSource> context)
+    private static int servertime(CommandContext<CommandSourceStack> context)
     {
         ServerTime.getInstance().queryServerTime(true);
         return 1;
     }
 
-    private static int orePage(CommandContext<ServerCommandSource> context)
+    private static int orePage(CommandContext<CommandSourceStack> context)
     {
         int page;
         try
@@ -206,7 +205,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int preCount(CommandContext<ServerCommandSource> context)
+    private static int preCount(CommandContext<CommandSourceStack> context)
     {
         int count;
         try
@@ -221,7 +220,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int postCount(CommandContext<ServerCommandSource> context)
+    private static int postCount(CommandContext<CommandSourceStack> context)
     {
         int count;
         try
@@ -236,7 +235,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int display(CommandContext<ServerCommandSource> context)
+    private static int display(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -254,7 +253,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int outline(CommandContext<ServerCommandSource> context)
+    private static int outline(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -272,7 +271,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int anno(CommandContext<ServerCommandSource> context)
+    private static int anno(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -290,7 +289,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int vector(CommandContext<ServerCommandSource> context)
+    private static int vector(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -308,7 +307,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int vector_creat(CommandContext<ServerCommandSource> context)
+    private static int vector_creat(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -326,7 +325,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int vector_destruct(CommandContext<ServerCommandSource> context)
+    private static int vector_destruct(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -344,7 +343,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int vector_length(CommandContext<ServerCommandSource> context)
+    private static int vector_length(CommandContext<CommandSourceStack> context)
     {
         float length = getFloat(context, "length");
         Configs.Edits.VECTOR_LENGTH.setDoubleValue(length);
@@ -352,7 +351,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int label(CommandContext<ServerCommandSource> context)
+    private static int label(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -370,32 +369,32 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int teleport_next(CommandContext<ServerCommandSource> context)
+    private static int teleport_next(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().getBlockEditSet().getOreDB().tpNext();
         return 1;
     }
 
-    private static int teleport_prev(CommandContext<ServerCommandSource> context)
+    private static int teleport_prev(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().getBlockEditSet().getOreDB().tpPrev();
         return 1;
     }
 
-    private static int teleport(CommandContext<ServerCommandSource> context)
+    private static int teleport(CommandContext<CommandSourceStack> context)
     {
         int index = getInteger(context, "index");
         DataManager.getEditSelection().getBlockEditSet().getOreDB().tpIndex(index);
         return 1;
     }
 
-    private static int edits_list(CommandContext<ServerCommandSource> context)
+    private static int edits_list(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().getBlockEditSet().listEdits();
         return 1;
     }
 
-    private static int edits_hide(CommandContext<ServerCommandSource> context)
+    private static int edits_hide(CommandContext<CommandSourceStack> context)
     {
         String players = getString(context, "player(s)");
         String[] playerList = players.split(" ");
@@ -406,7 +405,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int edits_show(CommandContext<ServerCommandSource> context)
+    private static int edits_show(CommandContext<CommandSourceStack> context)
     {
         String players = getString(context, "player(s)");
         String[] playerList = players.split(" ");
@@ -417,7 +416,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int edits_remove(CommandContext<ServerCommandSource> context)
+    private static int edits_remove(CommandContext<CommandSourceStack> context)
     {
         String players = getString(context, "player(s)");
         String[] playerList = players.split(" ");
@@ -428,7 +427,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int set_edit(CommandContext<ServerCommandSource> context) throws CommandSyntaxException
+    private static int set_edit(CommandContext<CommandSourceStack> context) throws CommandSyntaxException
     {
         BlockPos pos = getBlockPos(context, "pos");
         String block = getString(context, "block");
@@ -436,7 +435,7 @@ public class WatsonCommand extends WatsonCommandBase
         String world = getString(context, "world");
         WatsonBlock watsonblock = WatsonBlockRegistery.getInstance().getWatsonBlockByName(block);
         int colorst = StringUtils.getColor(colorstr, 0);
-        int colorTemp = MathHelper.clamp(colorst, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        int colorTemp = Mth.clamp(colorst, Integer.MIN_VALUE, Integer.MAX_VALUE);
         if (colorTemp != 0)
         {
             Color4f color = Color4f.fromColor(colorTemp);
@@ -448,7 +447,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int setLedgerActions(CommandContext<ServerCommandSource> context)
+    private static int setLedgerActions(CommandContext<CommandSourceStack> context)
     {
         if (!DataManager.getLedgerActions().isEmpty())
         {
@@ -464,19 +463,19 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int filter_list(CommandContext<ServerCommandSource> context)
+    private static int filter_list(CommandContext<CommandSourceStack> context)
     {
         DataManager.getFilters().list();
         return 1;
     }
 
-    private static int filter_clear(CommandContext<ServerCommandSource> context)
+    private static int filter_clear(CommandContext<CommandSourceStack> context)
     {
         DataManager.getFilters().clear();
         return 1;
     }
 
-    private static int filter_add(CommandContext<ServerCommandSource> context)
+    private static int filter_add(CommandContext<CommandSourceStack> context)
     {
         String players = getString(context, "player(s)");
         String[] playerList = players.split(" ");
@@ -487,7 +486,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int filter_remove(CommandContext<ServerCommandSource> context)
+    private static int filter_remove(CommandContext<CommandSourceStack> context)
     {
         String players = getString(context, "player(s)");
         String[] playerList = players.split(" ");
@@ -498,7 +497,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int file_list(CommandContext<ServerCommandSource> context)
+    private static int file_list(CommandContext<CommandSourceStack> context)
     {
         String player;
         int page;
@@ -522,7 +521,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int file_delete(CommandContext<ServerCommandSource> context)
+    private static int file_delete(CommandContext<CommandSourceStack> context)
     {
         String player, filename;
         try
@@ -553,14 +552,14 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int file_expire(CommandContext<ServerCommandSource> context)
+    private static int file_expire(CommandContext<CommandSourceStack> context)
     {
         String date = getString(context, "YYYY-MM-DD");
         DataManager.expireBlockEditFiles(date);
         return 1;
     }
 
-    private static int file_load(CommandContext<ServerCommandSource> context)
+    private static int file_load(CommandContext<CommandSourceStack> context)
     {
         String player, filename;
         try
@@ -591,7 +590,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int file_save(CommandContext<ServerCommandSource> context)
+    private static int file_save(CommandContext<CommandSourceStack> context)
     {
         String filename;
         try
@@ -607,7 +606,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_watson(CommandContext<ServerCommandSource> context)
+    private static int config_watson(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -631,7 +630,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_debug(CommandContext<ServerCommandSource> context)
+    private static int config_debug(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -649,7 +648,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_auto_page(CommandContext<ServerCommandSource> context)
+    private static int config_auto_page(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -667,7 +666,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_region_info_timeout(CommandContext<ServerCommandSource> context)
+    private static int config_region_info_timeout(CommandContext<CommandSourceStack> context)
     {
         double seconds;
         try
@@ -688,7 +687,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_billb_background(CommandContext<ServerCommandSource> context)
+    private static int config_billb_background(CommandContext<CommandSourceStack> context)
     {
         int color;
         try
@@ -704,7 +703,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_billb_foreground(CommandContext<ServerCommandSource> context)
+    private static int config_billb_foreground(CommandContext<CommandSourceStack> context)
     {
         int color;
         try
@@ -720,7 +719,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_group_ores_creative(CommandContext<ServerCommandSource> context)
+    private static int config_group_ores_creative(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -738,7 +737,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_teleport_command(CommandContext<ServerCommandSource> context)
+    private static int config_teleport_command(CommandContext<CommandSourceStack> context)
     {
         String command;
         try
@@ -754,7 +753,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_chat_timeout(CommandContext<ServerCommandSource> context)
+    private static int config_chat_timeout(CommandContext<CommandSourceStack> context)
     {
         double seconds;
         try
@@ -775,7 +774,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_max_auto_page(CommandContext<ServerCommandSource> context)
+    private static int config_max_auto_page(CommandContext<CommandSourceStack> context)
     {
         int pages;
         try
@@ -791,7 +790,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_pre_count(CommandContext<ServerCommandSource> context)
+    private static int config_pre_count(CommandContext<CommandSourceStack> context)
     {
         int count;
         try
@@ -807,7 +806,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_post_count(CommandContext<ServerCommandSource> context)
+    private static int config_post_count(CommandContext<CommandSourceStack> context)
     {
         int count;
         try
@@ -823,7 +822,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_watson_prefix(CommandContext<ServerCommandSource> context)
+    private static int config_watson_prefix(CommandContext<CommandSourceStack> context)
     {
         String prefix;
         try
@@ -839,7 +838,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_ss_player_directory(CommandContext<ServerCommandSource> context)
+    private static int config_ss_player_directory(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -857,7 +856,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_ss_player_suffix(CommandContext<ServerCommandSource> context)
+    private static int config_ss_player_suffix(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -875,7 +874,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_ss_date_directory(CommandContext<ServerCommandSource> context)
+    private static int config_ss_date_directory(CommandContext<CommandSourceStack> context)
     {
         String date_directory;
         try
@@ -891,7 +890,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_reformat_query(CommandContext<ServerCommandSource> context)
+    private static int config_reformat_query(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -909,7 +908,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_recolor_query(CommandContext<ServerCommandSource> context)
+    private static int config_recolor_query(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -927,7 +926,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_time_ordered(CommandContext<ServerCommandSource> context)
+    private static int config_time_ordered(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -951,7 +950,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_vector_length(CommandContext<ServerCommandSource> context)
+    private static int config_vector_length(CommandContext<CommandSourceStack> context)
     {
         float length;
         try
@@ -968,7 +967,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int config_chat_highlights(CommandContext<ServerCommandSource> context)
+    private static int config_chat_highlights(CommandContext<CommandSourceStack> context)
     {
         boolean displayed;
         try
@@ -986,24 +985,24 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int help(CommandContext<ServerCommandSource> context)
+    private static int help(CommandContext<CommandSourceStack> context)
     {
         int cmdCount = 0;
-        CommandDispatcher<ServerCommandSource> dispatcher = Command.commandDispatcher;
-        for (CommandNode<ServerCommandSource> command : dispatcher.getRoot().getChildren())
+        CommandDispatcher<CommandSourceStack> dispatcher = Command.commandDispatcher;
+        for (CommandNode<CommandSourceStack> command : dispatcher.getRoot().getChildren())
         {
             String cmdName = command.getName();
             if (ClientCommandManager.isClientSideCommand(cmdName))
             {
-                Map<CommandNode<ServerCommandSource>, String> usage = dispatcher.getSmartUsage(command, context.getSource());
+                Map<CommandNode<CommandSourceStack>, String> usage = dispatcher.getSmartUsage(command, context.getSource());
                 for (String u : usage.values())
                 {
-                    ClientCommandManager.sendFeedback(Text.literal("/" + cmdName + " " + u));
+                    ClientCommandManager.sendFeedback(Component.literal("/" + cmdName + " " + u));
                 }
                 cmdCount += usage.size();
                 if (usage.isEmpty())
                 {
-                    ClientCommandManager.sendFeedback(Text.literal("/" + cmdName));
+                    ClientCommandManager.sendFeedback(Component.literal("/" + cmdName));
                     cmdCount++;
                 }
             }
@@ -1011,7 +1010,7 @@ public class WatsonCommand extends WatsonCommandBase
         return cmdCount;
     }
 
-    private static int replay(CommandContext<ServerCommandSource> context)
+    private static int replay(CommandContext<CommandSourceStack> context)
     {
         String since = "";
         double speed = 0;
@@ -1046,7 +1045,7 @@ public class WatsonCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int cancelReplay(CommandContext<ServerCommandSource> context)
+    private static int cancelReplay(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().cancelReplay();
         return 1;

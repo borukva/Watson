@@ -1,24 +1,24 @@
 package eu.minemania.watson.network.ledger.action;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
 public class PluginActionPacket
 {
     private BlockPos blockPos;
     private String type;
-    private Identifier dim;
-    private Identifier oldObj;
-    private Identifier newObj;
+    private ResourceLocation dim;
+    private ResourceLocation oldObj;
+    private ResourceLocation newObj;
     private String source;
     private long time;
     private boolean rolledBack;
     private String additionalData;
 
-    public PluginActionPacket(BlockPos blockPos, String type, Identifier dim, Identifier oldObj, Identifier newObj, String source, long time, boolean rolledBack, String additionalData)
+    public PluginActionPacket(BlockPos blockPos, String type, ResourceLocation dim, ResourceLocation oldObj, ResourceLocation newObj, String source, long time, boolean rolledBack, String additionalData)
     {
         this.blockPos = blockPos;
         this.type = type;
@@ -41,17 +41,17 @@ public class PluginActionPacket
         return this.type;
     }
 
-    public Identifier getDimension()
+    public ResourceLocation getDimension()
     {
         return this.dim;
     }
 
-    public Identifier getOldObject()
+    public ResourceLocation getOldObject()
     {
         return this.oldObj;
     }
 
-    public Identifier getNewObject()
+    public ResourceLocation getNewObject()
     {
         return this.newObj;
     }
@@ -76,18 +76,18 @@ public class PluginActionPacket
         return this.additionalData;
     }
 
-    public record Payload(PluginActionPacket content) implements CustomPayload
+    public record Payload(PluginActionPacket content) implements CustomPacketPayload
     {
-        public static final Id<Payload> ID = new Id<>(PluginActionPacketHandler.CHANNEL);
-        public static final PacketCodec<PacketByteBuf, Payload> CODEC = CustomPayload.codecOf(null, Payload::new);
+        public static final Type<Payload> ID = new Type<>(PluginActionPacketHandler.CHANNEL);
+        public static final StreamCodec<FriendlyByteBuf, Payload> CODEC = CustomPacketPayload.codec(null, Payload::new);
 
-        public Payload(PacketByteBuf input)
+        public Payload(FriendlyByteBuf input)
         {
-            this(new PluginActionPacket(input.readBlockPos(), input.readString(), input.readIdentifier(), input.readIdentifier(), input.readIdentifier(), input.readString(), input.readLong(), input.readBoolean(), input.readString()));
+            this(new PluginActionPacket(input.readBlockPos(), input.readUtf(), input.readResourceLocation(), input.readResourceLocation(), input.readResourceLocation(), input.readUtf(), input.readLong(), input.readBoolean(), input.readUtf()));
         }
 
         @Override
-        public Id<Payload> getId()
+        public Type<Payload> type()
         {
             return ID;
         }

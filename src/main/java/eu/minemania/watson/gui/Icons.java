@@ -3,8 +3,8 @@ package eu.minemania.watson.gui;
 import eu.minemania.watson.Reference;
 import fi.dy.masa.malilib.gui.interfaces.IGuiIcon;
 import fi.dy.masa.malilib.render.RenderUtils;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.resources.ResourceLocation;
 
 public enum Icons implements IGuiIcon
 {
@@ -15,7 +15,7 @@ public enum Icons implements IGuiIcon
     FILE_ICON_SEARCH(0, 14, 12, 12),
     INFO_11(12, 14, 11, 11);
 
-    public static final Identifier TEXTURE = Identifier.of(Reference.MOD_ID, "textures/gui/gui_widgets.png");
+    public static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Reference.MOD_ID, "textures/gui/gui_widgets.png");
 
     private final int u;
     private final int v;
@@ -55,13 +55,13 @@ public enum Icons implements IGuiIcon
     }
 
     @Override
-    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected, DrawContext drawContext)
+    public void renderAt(int x, int y, float zLevel, boolean enabled, boolean selected, GuiGraphics drawContext)
     {
         RenderUtils.drawTexturedRect(x, y, this.u, this.v, this.w, this.h, zLevel);
     }
 
     @Override
-    public Identifier getTexture()
+    public ResourceLocation getTexture()
     {
         return TEXTURE;
     }

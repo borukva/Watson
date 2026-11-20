@@ -1,7 +1,7 @@
 package eu.minemania.watson.gui;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.client.gui.screens.Screen;
 import eu.minemania.watson.Reference;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.config.Plugins;
@@ -10,7 +10,6 @@ import fi.dy.masa.malilib.gui.button.ButtonBase;
 import fi.dy.masa.malilib.gui.button.ButtonGeneric;
 import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.screen.Screen;
 
 public class GuiMainMenu extends GuiBase
 {

@@ -16,8 +16,10 @@ import java.util.regex.Pattern;
 
 import eu.minemania.watson.client.Teleport;
 import eu.minemania.watson.render.RenderUtils;
-import net.minecraft.client.render.*;
-
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.Tesselator;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
@@ -264,9 +266,9 @@ public class BlockEditSet
     {
         if (Configs.Edits.VECTOR_SHOWN.getBooleanValue())
         {
-            Tessellator tessellator = Tessellator.getInstance();
+            Tesselator tessellator = Tesselator.getInstance();
             BufferBuilder buffer = RenderUtils.startDrawingLines(tessellator);
-            BuiltBuffer builtBuffer;
+            MeshData builtBuffer;
             int nextColorIndex1 = 0;
             for (PlayereditSet editsForPlayer : playerEdits.values())
             {
@@ -274,8 +276,8 @@ public class BlockEditSet
                 nextColorIndex1 = (nextColorIndex1 + 1) % OverlayRenderer.KELLY_COLORS.length;
             }
             try {
-                builtBuffer = buffer.end();
-                BufferRenderer.drawWithGlobalProgram(builtBuffer);
+                builtBuffer = buffer.buildOrThrow();
+                BufferUploader.drawWithShader(builtBuffer);
                 builtBuffer.close();
             } catch (Exception e) {
                 // Ignored

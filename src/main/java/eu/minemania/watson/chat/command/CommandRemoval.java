@@ -38,7 +38,7 @@ public class CommandRemoval
      */
     public static void removeCommand(MinecraftServer server, String command)
     {
-        removeCommand(server.getCommandManager().getDispatcher().getRoot(), command);
+        removeCommand(server.getCommands().getDispatcher().getRoot(), command);
     }
 
     /**

@@ -10,7 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.player.Player;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
@@ -48,10 +51,6 @@ import fi.dy.masa.malilib.util.FileUtils;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.JsonUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ServerInfo;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
 
 public class DataManager implements IDirectoryCache
 {
@@ -307,11 +306,11 @@ public class DataManager implements IDirectoryCache
 
     public static String getServerIP()
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        ServerInfo serverData = mc.getCurrentServerEntry();
-        if (!mc.isInSingleplayer() && serverData != null)
+        Minecraft mc = Minecraft.getInstance();
+        ServerData serverData = mc.getCurrentServer();
+        if (!mc.isLocalServer() && serverData != null)
         {
-            return serverData.address;
+            return serverData.ip;
         }
         else
         {
@@ -321,7 +320,7 @@ public class DataManager implements IDirectoryCache
 
     public static void saveBlockEditFile(String fileName)
     {
-        PlayerEntity playerEntity = MinecraftClient.getInstance().player;
+        Player playerEntity = Minecraft.getInstance().player;
         if (playerEntity == null)
         {
             return;
@@ -604,7 +603,7 @@ public class DataManager implements IDirectoryCache
     {
         ArrayList<String> blocks = new ArrayList<>();
 
-        Registries.BLOCK.forEach(block -> blocks.add(Registries.BLOCK.getId(block).toString()));
+        BuiltInRegistries.BLOCK.forEach(block -> blocks.add(BuiltInRegistries.BLOCK.getKey(block).toString()));
 
         blocks.sort(String::compareTo);
 
@@ -615,7 +614,7 @@ public class DataManager implements IDirectoryCache
     {
         ArrayList<String> items = new ArrayList<>();
 
-        Registries.ITEM.forEach(item -> items.add(Registries.ITEM.getId(item).toString()));
+        BuiltInRegistries.ITEM.forEach(item -> items.add(BuiltInRegistries.ITEM.getKey(item).toString()));
 
         items.sort(String::compareTo);
 
@@ -626,7 +625,7 @@ public class DataManager implements IDirectoryCache
     {
         ArrayList<String> entityTypes = new ArrayList<>();
 
-        Registries.ENTITY_TYPE.forEach(entityType -> entityTypes.add(Registries.ENTITY_TYPE.getId(entityType).toString()));
+        BuiltInRegistries.ENTITY_TYPE.forEach(entityType -> entityTypes.add(BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString()));
 
         entityTypes.sort(String::compareTo);
 
@@ -638,9 +637,9 @@ public class DataManager implements IDirectoryCache
         ArrayList<String> tags = new ArrayList<>();
         ArrayList<String> deDupTags = new ArrayList<>();
 
-        Registries.BLOCK.streamTags().forEach((block) -> tags.add("#"+block.getTag().id().toString()));
-        Registries.ENTITY_TYPE.streamTags().forEach((entity) -> tags.add("#"+entity.getTag().id().toString()));
-        Registries.ITEM.streamTags().forEach((item) -> tags.add("#"+item.getTag().id().toString()));
+        BuiltInRegistries.BLOCK.getTags().forEach((block) -> tags.add("#"+block.key().location().toString()));
+        BuiltInRegistries.ENTITY_TYPE.getTags().forEach((entity) -> tags.add("#"+entity.key().location().toString()));
+        BuiltInRegistries.ITEM.getTags().forEach((item) -> tags.add("#"+item.key().location().toString()));
 
         for (String tag : tags) {
             if (!deDupTags.contains(tag)) {

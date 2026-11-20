@@ -6,14 +6,14 @@ import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.config.Plugins;
 import eu.minemania.watson.data.DataManager;
 import fi.dy.masa.malilib.interfaces.IClientTickHandler;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 public class ClientTickHandler implements IClientTickHandler
 {
     @Override
-    public void onClientTick(MinecraftClient mc)
+    public void onClientTick(Minecraft mc)
     {
-        if (mc.world != null && mc.player != null)
+        if (mc.level != null && mc.player != null)
         {
             SyncTaskQueue.getInstance().runTasks();
             ChatMessage.getInstance().processServerChatQueue();

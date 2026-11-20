@@ -1,7 +1,8 @@
 package eu.minemania.watson.analysis;
 
 import java.util.regex.Matcher;
-
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.client.Paginator;
 import eu.minemania.watson.config.Configs;
@@ -15,8 +16,6 @@ import eu.minemania.watson.scheduler.tasks.AddBlockEditTask;
 import eu.minemania.watson.selection.EditSelection;
 import fi.dy.masa.malilib.util.InfoUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.MutableText;
 
 //----------------------------------------------------------------------------
 
@@ -104,7 +103,7 @@ public class CoreProtectAnalysis extends Analysis
         });
     }
 
-    void busy(MutableText chat, Matcher m)
+    void busy(MutableComponent chat, Matcher m)
     {
         if (_looping && Configs.Plugin.AUTO_PAGE.getBooleanValue() && Configs.Messages.DISABLE_CP_MESSAGES.getBooleanValue())
         {
@@ -113,14 +112,14 @@ public class CoreProtectAnalysis extends Analysis
         reset();
     }
 
-    void details(MutableText chat, Matcher m)
+    void details(MutableComponent chat, Matcher m)
     {
         isCpMessage = true;
         _lookupDetails = false;
         HoverEvent hover = chat.getSiblings().get(0).getStyle().getHoverEvent();
         if (hover != null && hover.getValue(hover.getAction()) != null)
         {
-            String text = ((MutableText) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+            String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
             _millis = TimeStamp.parseTimeExpression(text, m.group(1));
         }
         else
@@ -160,14 +159,14 @@ public class CoreProtectAnalysis extends Analysis
         }
     }
 
-    void detailsSession(MutableText chat, Matcher m)
+    void detailsSession(MutableComponent chat, Matcher m)
     {
         isCpMessage = true;
         _lookupDetails = false;
         HoverEvent hover = chat.getSiblings().get(0).getStyle().getHoverEvent();
         if (hover != null && hover.getValue(hover.getAction()) != null)
         {
-            String text = ((MutableText) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+            String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
             _millis = TimeStamp.parseTimeExpression(text, m.group(1));
         }
         else
@@ -186,14 +185,14 @@ public class CoreProtectAnalysis extends Analysis
         _lookupDetails = true;
     }
 
-    void detailsSign(MutableText chat, Matcher m)
+    void detailsSign(MutableComponent chat, Matcher m)
     {
         isCpMessage = true;
         _lookupDetails = false;
         HoverEvent hover = chat.getSiblings().get(0).getStyle().getHoverEvent();
         if (hover != null && hover.getValue(hover.getAction()) != null)
         {
-            String text = ((MutableText) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+            String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
             _millis = TimeStamp.parseTimeExpression(text, m.group(1));
         }
         else
@@ -224,7 +223,7 @@ public class CoreProtectAnalysis extends Analysis
         }
     }
 
-    void inspectorCoords(MutableText chat, Matcher m)
+    void inspectorCoords(MutableComponent chat, Matcher m)
     {
         isCpMessage = true;
         _isLookup = false;
@@ -237,7 +236,7 @@ public class CoreProtectAnalysis extends Analysis
         _firstInspectorResult = true;
     }
 
-    void lookupCoords(MutableText chat, Matcher m)
+    void lookupCoords(MutableComponent chat, Matcher m)
     {
         isCpMessage = false;
         _isLookup = true;
@@ -255,17 +254,17 @@ public class CoreProtectAnalysis extends Analysis
         }
     }
 
-    void lookupHeader(MutableText chat, Matcher m)
+    void lookupHeader(MutableComponent chat, Matcher m)
     {
         _isLookup = true;
     }
 
-    void noResult(MutableText chat, Matcher m)
+    void noResult(MutableComponent chat, Matcher m)
     {
         reset();
     }
 
-    void page(MutableText chat, Matcher m)
+    void page(MutableComponent chat, Matcher m)
     {
         int currentPage = Integer.parseInt(m.group(1));
         int pageCount = Integer.parseInt(m.group(2));
@@ -308,7 +307,7 @@ public class CoreProtectAnalysis extends Analysis
         }
     }
 
-    void search(MutableText chat, Matcher m)
+    void search(MutableComponent chat, Matcher m)
     {
         _looping = true;
     }

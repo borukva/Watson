@@ -2,10 +2,9 @@ package eu.minemania.watson.analysis;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.config.Configs;
-import net.minecraft.text.MutableText;
 
 public class RegionInfoAnalysis extends Analysis
 {
@@ -20,7 +19,7 @@ public class RegionInfoAnalysis extends Analysis
         });
     }
 
-    void wgRegions(MutableText chat, Matcher m)
+    void wgRegions(MutableComponent chat, Matcher m)
     {
         long now = System.currentTimeMillis();
         if (now - _lastCommandTime > (long) (Configs.Plugin.REGION_INFO_TIMEOUT.getDoubleValue() * 1000))

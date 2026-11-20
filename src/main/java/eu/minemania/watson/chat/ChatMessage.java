@@ -1,13 +1,12 @@
 package eu.minemania.watson.chat;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.config.Configs;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 public class ChatMessage
 {
@@ -22,22 +21,22 @@ public class ChatMessage
 
     public static void localOutput(String message, boolean watsonMessage)
     {
-        sendToLocalChat(Formatting.AQUA, null, message, watsonMessage);
+        sendToLocalChat(ChatFormatting.AQUA, null, message, watsonMessage);
     }
 
     public static void localOutputT(String translationKey, Object... args)
     {
-        sendToLocalChat(Formatting.AQUA, Text.translatable(translationKey, args), true);
+        sendToLocalChat(ChatFormatting.AQUA, Component.translatable(translationKey, args), true);
     }
 
     public static void localError(String message, boolean watsonMessage)
     {
-        sendToLocalChat(Formatting.DARK_RED, null, message, watsonMessage);
+        sendToLocalChat(ChatFormatting.DARK_RED, null, message, watsonMessage);
     }
 
     public static void localErrorT(String translationKey, Object... args)
     {
-        sendToLocalChat(Formatting.DARK_RED, Text.translatable(translationKey, args), true);
+        sendToLocalChat(ChatFormatting.DARK_RED, Component.translatable(translationKey, args), true);
     }
 
     public void serverChat(String message, boolean firstMessage)
@@ -59,32 +58,32 @@ public class ChatMessage
 
     public static void sendToLocalChat(String message, boolean watsonMessage)
     {
-        sendToLocalChat(Text.translatable(message), watsonMessage);
+        sendToLocalChat(Component.translatable(message), watsonMessage);
     }
 
-    public static void sendToLocalChat(MutableText inputmessage, boolean watsonMessage)
+    public static void sendToLocalChat(MutableComponent inputmessage, boolean watsonMessage)
     {
-        MutableText message = Configs.Highlights.USE_CHAT_HIGHLIGHTS.getBooleanValue() ? Highlight.setHighlightChatMessage("chat.type.text", inputmessage, watsonMessage) : inputmessage;
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(message);
+        MutableComponent message = Configs.Highlights.USE_CHAT_HIGHLIGHTS.getBooleanValue() ? Highlight.setHighlightChatMessage("chat.type.text", inputmessage, watsonMessage) : inputmessage;
+        Minecraft.getInstance().gui.getChat().addMessage(message);
     }
 
-    public static void sendToLocalChat(Formatting color, Formatting style, String message, boolean watsonMessage)
+    public static void sendToLocalChat(ChatFormatting color, ChatFormatting style, String message, boolean watsonMessage)
     {
-        MutableText chat = Text.literal(message);
+        MutableComponent chat = Component.literal(message);
         if (color != null && style == null)
         {
-            chat.formatted(color);
+            chat.withStyle(color);
         }
         else if (color != null)
         {
-            chat.formatted(color, style);
+            chat.withStyle(color, style);
         }
         sendToLocalChat(chat, watsonMessage);
     }
 
-    public static void sendToLocalChat(Formatting color, MutableText message, boolean watsonMessage)
+    public static void sendToLocalChat(ChatFormatting color, MutableComponent message, boolean watsonMessage)
     {
-        message.formatted(color);
+        message.withStyle(color);
         sendToLocalChat(message, watsonMessage);
     }
 
@@ -92,8 +91,8 @@ public class ChatMessage
     {
         try
         {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            mc.player.networkHandler.sendChatCommand(message);
+            Minecraft mc = Minecraft.getInstance();
+            mc.player.connection.sendCommand(message);
         }
         catch (Exception e)
         {

@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
-
+import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import eu.minemania.watson.client.Teleport;
 import eu.minemania.watson.selection.PlayereditUtils;
 import fi.dy.masa.malilib.gui.GuiBase;
@@ -14,8 +15,6 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntrySortable;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.util.math.MatrixStack;
 
 public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry>
 {
@@ -116,7 +115,7 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
+    public void render(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 
@@ -161,7 +160,7 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
             String description = PlayereditUtils.blockString(this.entry.getEdit(), PlayereditUtils.Edit.DESCRIPTION);
             if (x6 + StringUtils.getStringWidth(description) > width - this.entry.getButton().getWidth() + 15)
             {
-                description = this.textRenderer.trimToWidth(description, width - x6 - this.entry.getButton().getWidth() + 5).concat("...");
+                description = this.textRenderer.plainSubstrByWidth(description, width - x6 - this.entry.getButton().getWidth() + 5).concat("...");
             }
             this.drawString(x1, y, 0xFFFFFFFF, action, drawContext);
             this.drawString(x2, y, 0xFFFFFFFF, time, drawContext);
@@ -175,15 +174,15 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
     }
 
     @Override
-    public void postRenderHovered(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
+    public void postRenderHovered(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
     {
-        MatrixStack matrixStack = drawContext.getMatrices();
+        PoseStack matrixStack = drawContext.pose();
         if (this.entry != null)
         {
             String descriptionText = PlayereditUtils.blockString(this.entry.getEdit(), PlayereditUtils.Edit.DESCRIPTION);
             if (mouseX > this.getColumnPosX(5) && this.getColumnPosX(5) + StringUtils.getStringWidth(descriptionText) > width - this.entry.getButton().getWidth() + 15)
             {
-                matrixStack.push();
+                matrixStack.pushPose();
                 matrixStack.translate(0, 0, 200);
                 String header = GuiBase.TXT_BOLD + StringUtils.translate(HEADERS[5]);
                 int w1 = this.getStringWidth(header);
@@ -215,7 +214,7 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
                 {
                     this.drawString(x1, y + (i * 8) - 7, 0xFFFFFFFF, descriptions.get(i), drawContext);
                 }
-                matrixStack.pop();
+                matrixStack.popPose();
             }
             if (mouseX < this.getColumnPosX(5))
             {
@@ -223,7 +222,7 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
                 {
                     return;
                 }
-                matrixStack.push();
+                matrixStack.pushPose();
                 matrixStack.translate(0, 0, 200);
                 int w1 = 0;
                 int w2 = 0;
@@ -253,7 +252,7 @@ public class WidgetBlockeditEntry extends WidgetListEntrySortable<BlockeditEntry
                     this.drawString(x2, y, 0xFFFFFFFF, String.valueOf(entry.getValue()), drawContext);
                     y += 16;
                 }
-                matrixStack.pop();
+                matrixStack.popPose();
             }
         }
     }

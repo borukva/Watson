@@ -2,7 +2,8 @@ package eu.minemania.watson.analysis;
 
 import java.util.Calendar;
 import java.util.HashMap;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.config.Configs;
@@ -11,8 +12,6 @@ import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.db.TimeStamp;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.entity.player.PlayerEntity;
 
 public class ServerTime extends Analysis
 {
@@ -63,7 +62,7 @@ public class ServerTime extends Analysis
     public void queryServerTime(boolean showServerTime)
     {
         String serverIP = DataManager.getServerIP();
-        PlayerEntity player = MinecraftClient.getInstance().player;
+        Player player = Minecraft.getInstance().player;
         if (serverIP != null && player != null)
         {
             if (_localMinusServerMinutes.get(serverIP) == null)

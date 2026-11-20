@@ -13,7 +13,7 @@ import fi.dy.masa.malilib.gui.button.IButtonActionListener;
 import fi.dy.masa.malilib.gui.widgets.WidgetListEntryBase;
 import fi.dy.masa.malilib.render.RenderUtils;
 import fi.dy.masa.malilib.util.StringUtils;
-import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.GuiGraphics;
 
 public class WidgetPlayereditEntry extends WidgetListEntryBase<PlayereditSet>
 {
@@ -61,7 +61,7 @@ public class WidgetPlayereditEntry extends WidgetListEntryBase<PlayereditSet>
     }
 
     @Override
-    public void render(int mouseX, int mouseY, boolean selected, DrawContext drawContext)
+    public void render(int mouseX, int mouseY, boolean selected, GuiGraphics drawContext)
     {
         RenderUtils.color(1f, 1f, 1f, 1f);
 

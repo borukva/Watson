@@ -3,7 +3,8 @@ package eu.minemania.watson.db;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashMap;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.level.block.Blocks;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.analysis.ServerTime;
 import eu.minemania.watson.chat.ChatMessage;
@@ -13,8 +14,6 @@ import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
 import eu.minemania.watson.render.OverlayRenderer;
 import eu.minemania.watson.selection.EditSelection;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.Formatting;
 
 public class OreDB
 {
@@ -133,7 +132,7 @@ public class OreDB
                     BlockEdit edit = block.getEdit();
                     WatsonBlock watsonblock = edit.block;
                     String player = edit.player;
-                    Formatting strike = edit.playereditSet.isVisible() ? null : Formatting.STRIKETHROUGH;
+                    ChatFormatting strike = edit.playereditSet.isVisible() ? null : ChatFormatting.STRIKETHROUGH;
                     String line = String.format("(%3d) %s (%5d %3d %5d %s) %s [%2d] %s", id, TimeStamp.formatMonthDayTime(time), block.getLocation().getX(), block.getLocation().getY(), block.getLocation().getZ(), block.getLocation().getWorld(), watsonblock.getName(), deposit.getBlockCount(), player);
                     ChatMessage.sendToLocalChat(_chatColors.get(watsonblock).getColor(), strike, line, true);
                 }

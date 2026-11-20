@@ -1,12 +1,11 @@
 package eu.minemania.watson.network.ledger.handshake;
 
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-
 import java.util.ArrayList;
 import java.util.List;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public class PluginHandshakePacket
 {
@@ -46,9 +45,9 @@ public class PluginHandshakePacket
         return this.actions;
     }
 
-    public NbtCompound toNbt()
+    public CompoundTag toNbt()
     {
-        NbtCompound result = new NbtCompound();
+        CompoundTag result = new CompoundTag();
 
         result.putString("modid", this.modId);
         result.putString("version", this.version);
@@ -57,29 +56,29 @@ public class PluginHandshakePacket
         return result;
     }
 
-    public record Payload(PluginHandshakePacket content) implements CustomPayload
+    public record Payload(PluginHandshakePacket content) implements CustomPacketPayload
     {
-        public static final Id<Payload> ID = new Id<>(PluginHandshakePacketHandler.CHANNEL);
-        public static final PacketCodec<PacketByteBuf, Payload> CODEC = CustomPayload.codecOf(Payload::write, Payload::new);
+        public static final Type<Payload> ID = new Type<>(PluginHandshakePacketHandler.CHANNEL);
+        public static final StreamCodec<FriendlyByteBuf, Payload> CODEC = CustomPacketPayload.codec(Payload::write, Payload::new);
 
-        public Payload(PacketByteBuf input)
+        public Payload(FriendlyByteBuf input)
         {
-            this(new PluginHandshakePacket(input.readInt(), input.readString(), actionsList(input)));
+            this(new PluginHandshakePacket(input.readInt(), input.readUtf(), actionsList(input)));
         }
 
-        public void write(PacketByteBuf output)
+        public void write(FriendlyByteBuf output)
         {
             output.writeNbt(content.toNbt());
         }
 
         @Override
-        public Id<Payload> getId()
+        public Type<Payload> type()
         {
             return ID;
         }
     }
 
-    private static List<String> actionsList(PacketByteBuf buf)
+    private static List<String> actionsList(FriendlyByteBuf buf)
     {
         int totalActions = buf.readInt();
         List<String> actionsList = new ArrayList<>();
@@ -87,7 +86,7 @@ public class PluginHandshakePacket
         {
             for (int i = 0; i < totalActions; i++)
             {
-                String action = buf.readString();
+                String action = buf.readUtf();
                 actionsList.add(action);
             }
         }

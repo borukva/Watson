@@ -3,15 +3,17 @@ package eu.minemania.watson.chat.command;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.getInteger;
 import static com.mojang.brigadier.arguments.IntegerArgumentType.integer;
 import static com.mojang.brigadier.arguments.StringArgumentType.*;
-import static net.minecraft.command.argument.BlockPosArgumentType.blockPos;
-import static net.minecraft.command.argument.BlockPosArgumentType.getBlockPos;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.arguments.coordinates.BlockPosArgument.blockPos;
+import static net.minecraft.commands.arguments.coordinates.BlockPosArgument.getBlockPos;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
@@ -23,16 +25,13 @@ import eu.minemania.watson.db.BlockEditSet;
 import eu.minemania.watson.db.LocalAnnotation;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
 
 public class AnnoCommand extends WatsonCommandBase
 {
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher)
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher)
     {
         ClientCommandManager.addClientSideCommand("anno");
-        LiteralArgumentBuilder<ServerCommandSource> anno = literal("anno").executes(AnnoCommand::help)
+        LiteralArgumentBuilder<CommandSourceStack> anno = literal("anno").executes(AnnoCommand::help)
                 .then(literal("help").executes(AnnoCommand::help))
                 .then(literal("list").executes(AnnoCommand::list)
                         .then(literal("local").executes(AnnoCommand::listLocal)))
@@ -57,24 +56,24 @@ public class AnnoCommand extends WatsonCommandBase
         dispatcher.register(anno);
     }
 
-    private static int help(CommandContext<ServerCommandSource> context)
+    private static int help(CommandContext<CommandSourceStack> context)
     {
         int cmdCount = 0;
-        CommandDispatcher<ServerCommandSource> dispatcher = Command.commandDispatcher;
-        for (CommandNode<ServerCommandSource> command : dispatcher.getRoot().getChildren())
+        CommandDispatcher<CommandSourceStack> dispatcher = Command.commandDispatcher;
+        for (CommandNode<CommandSourceStack> command : dispatcher.getRoot().getChildren())
         {
             String cmdName = command.getName();
             if (ClientCommandManager.isClientSideCommand(cmdName))
             {
-                Map<CommandNode<ServerCommandSource>, String> usage = dispatcher.getSmartUsage(command, context.getSource());
+                Map<CommandNode<CommandSourceStack>, String> usage = dispatcher.getSmartUsage(command, context.getSource());
                 for (String u : usage.values())
                 {
-                    ClientCommandManager.sendFeedback(Text.literal("/" + cmdName + " " + u));
+                    ClientCommandManager.sendFeedback(Component.literal("/" + cmdName + " " + u));
                 }
                 cmdCount += usage.size();
                 if (usage.size() == 0)
                 {
-                    ClientCommandManager.sendFeedback(Text.literal("/" + cmdName));
+                    ClientCommandManager.sendFeedback(Component.literal("/" + cmdName));
                     cmdCount++;
                 }
             }
@@ -82,7 +81,7 @@ public class AnnoCommand extends WatsonCommandBase
         return cmdCount;
     }
 
-    private static int list(CommandContext<ServerCommandSource> context)
+    private static int list(CommandContext<CommandSourceStack> context)
     {
         BlockEditSet edits = DataManager.getEditSelection().getBlockEditSet();
         ArrayList<Annotation> annotations = edits.getAnnotations();
@@ -97,7 +96,7 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int listLocal(CommandContext<ServerCommandSource> context)
+    private static int listLocal(CommandContext<CommandSourceStack> context)
     {
         ArrayList<Annotation> annotations = LocalAnnotation.getInstance().getAnnotations();
 
@@ -111,7 +110,7 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int clear(CommandContext<ServerCommandSource> context)
+    private static int clear(CommandContext<CommandSourceStack> context)
     {
         BlockEditSet edits = DataManager.getEditSelection().getBlockEditSet();
         ArrayList<Annotation> annotations = edits.getAnnotations();
@@ -121,7 +120,7 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int clearLocal(CommandContext<ServerCommandSource> context)
+    private static int clearLocal(CommandContext<CommandSourceStack> context)
     {
         ArrayList<Annotation> annotations = LocalAnnotation.getInstance().getAnnotations();
 
@@ -130,45 +129,45 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int teleportNext(CommandContext<ServerCommandSource> context)
+    private static int teleportNext(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().getBlockEditSet().tpNextAnno();
         return 1;
     }
 
-    private static int teleportNextLocal(CommandContext<ServerCommandSource> context)
+    private static int teleportNextLocal(CommandContext<CommandSourceStack> context)
     {
         LocalAnnotation.getInstance().tpNextAnno();
         return 1;
     }
 
-    private static int teleportPrev(CommandContext<ServerCommandSource> context)
+    private static int teleportPrev(CommandContext<CommandSourceStack> context)
     {
         DataManager.getEditSelection().getBlockEditSet().tpPrevAnno();
         return 1;
     }
 
-    private static int teleportPrevLocal(CommandContext<ServerCommandSource> context)
+    private static int teleportPrevLocal(CommandContext<CommandSourceStack> context)
     {
         LocalAnnotation.getInstance().tpPrevAnno();
         return 1;
     }
 
-    private static int teleport(CommandContext<ServerCommandSource> context)
+    private static int teleport(CommandContext<CommandSourceStack> context)
     {
         int index = getInteger(context, "index");
         DataManager.getEditSelection().getBlockEditSet().tpIndexAnno(index);
         return 1;
     }
 
-    private static int teleportLocal(CommandContext<ServerCommandSource> context)
+    private static int teleportLocal(CommandContext<CommandSourceStack> context)
     {
         int index = getInteger(context, "index");
         LocalAnnotation.getInstance().tpIndexAnno(index);
         return 1;
     }
 
-    private static int remove(CommandContext<ServerCommandSource> context)
+    private static int remove(CommandContext<CommandSourceStack> context)
     {
         BlockEditSet edits = DataManager.getEditSelection().getBlockEditSet();
         ArrayList<Annotation> annotations = edits.getAnnotations();
@@ -186,7 +185,7 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int removeLocal(CommandContext<ServerCommandSource> context)
+    private static int removeLocal(CommandContext<CommandSourceStack> context)
     {
         ArrayList<Annotation> annotations = LocalAnnotation.getInstance().getAnnotations();
 
@@ -203,7 +202,7 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int add(CommandContext<ServerCommandSource> context)
+    private static int add(CommandContext<CommandSourceStack> context)
     {
         HashMap<String, Object> vars = DataManager.getEditSelection().getVariables();
         Integer x = (Integer) vars.get("x");
@@ -227,9 +226,9 @@ public class AnnoCommand extends WatsonCommandBase
         return 1;
     }
 
-    private static int addLocal(CommandContext<ServerCommandSource> context)
+    private static int addLocal(CommandContext<CommandSourceStack> context)
     {
-        BlockPos blockPos = BlockPos.ORIGIN;
+        BlockPos blockPos = BlockPos.ZERO;
         String world = null;
 
         try
@@ -241,7 +240,7 @@ public class AnnoCommand extends WatsonCommandBase
         {
         }
 
-        if (blockPos == BlockPos.ORIGIN || world == null)
+        if (blockPos == BlockPos.ZERO || world == null)
         {
             InfoUtils.showInGameMessage(MessageType.ERROR, "watson.error.anno.position");
         }

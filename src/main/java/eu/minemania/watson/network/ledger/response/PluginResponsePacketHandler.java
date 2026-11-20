@@ -4,14 +4,14 @@ import fi.dy.masa.malilib.gui.Message;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import fi.dy.masa.malilib.util.InfoUtils;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 
-public abstract class PluginResponsePacketHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
+public abstract class PluginResponsePacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final Identifier CHANNEL = Identifier.of("ledger","response");
+    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("ledger","response");
     private boolean registered = false;
 
     private final static PluginResponsePacketHandler<PluginResponsePacket.Payload> INSTANCE = new PluginResponsePacketHandler<>()
@@ -29,19 +29,19 @@ public abstract class PluginResponsePacketHandler<T extends CustomPayload> imple
     }
 
     @Override
-    public Identifier getPayloadChannel()
+    public ResourceLocation getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(Identifier channel)
+    public boolean isPlayRegistered(ResourceLocation channel)
     {
         return this.registered;
     }
 
     @Override
-    public void setPlayRegistered(Identifier channel)
+    public void setPlayRegistered(ResourceLocation channel)
     {
         if (channel.equals(CHANNEL))
         {
@@ -50,7 +50,7 @@ public abstract class PluginResponsePacketHandler<T extends CustomPayload> imple
     }
 
     @Override
-    public void reset(Identifier channel)
+    public void reset(ResourceLocation channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -62,7 +62,7 @@ public abstract class PluginResponsePacketHandler<T extends CustomPayload> imple
 
     public void decodePayload(PluginResponsePacket content)
     {
-        Identifier identifier = content.getIdentifier();
+        ResourceLocation identifier = content.getIdentifier();
         int responseCode = content.getResponseCode();
         String response;
         Message.MessageType messageType;
@@ -99,7 +99,7 @@ public abstract class PluginResponsePacketHandler<T extends CustomPayload> imple
     }
 
     @Override
-    public void encodeWithSplitter(PacketByteBuf buf, ClientPlayNetworkHandler handler)
+    public void encodeWithSplitter(FriendlyByteBuf buf, ClientPacketListener handler)
     {
         // NO-OP
     }

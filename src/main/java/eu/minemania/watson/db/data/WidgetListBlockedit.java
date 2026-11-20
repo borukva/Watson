@@ -2,13 +2,12 @@ package eu.minemania.watson.db.data;
 
 import java.util.Collection;
 import java.util.List;
-
+import net.minecraft.client.gui.GuiGraphics;
 import com.google.common.collect.ImmutableList;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.gui.GuiBlockeditData;
 import eu.minemania.watson.selection.PlayereditUtils;
 import fi.dy.masa.malilib.gui.widgets.WidgetListBase;
-import net.minecraft.client.gui.DrawContext;
 
 public class WidgetListBlockedit extends WidgetListBase<BlockeditEntry, WidgetBlockeditEntry>
 {
@@ -26,7 +25,7 @@ public class WidgetListBlockedit extends WidgetListBase<BlockeditEntry, WidgetBl
     }
 
     @Override
-    public void drawContents(DrawContext drawContext, int mouseX, int mouseY, float partialTicks)
+    public void drawContents(GuiGraphics drawContext, int mouseX, int mouseY, float partialTicks)
     {
         super.drawContents(drawContext, mouseX, mouseY, partialTicks);
         lastScrollbarPosition = this.scrollBar.getValue();

@@ -10,26 +10,26 @@ import eu.minemania.watson.scheduler.SyncTaskQueue;
 import eu.minemania.watson.scheduler.tasks.AddBlockEditTask;
 import fi.dy.masa.malilib.network.IPluginClientPlayHandler;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.entity.decoration.painting.PaintingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.decoration.Painting;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
-public abstract class PluginActionPacketHandler<T extends CustomPayload> implements IPluginClientPlayHandler<T>
+public abstract class PluginActionPacketHandler<T extends CustomPacketPayload> implements IPluginClientPlayHandler<T>
 {
-    public static final Identifier CHANNEL = Identifier.of("ledger","action");
+    public static final ResourceLocation CHANNEL = ResourceLocation.fromNamespaceAndPath("ledger","action");
     private boolean registered = false;
 
     private final static PluginActionPacketHandler<PluginActionPacket.Payload> INSTANCE = new PluginActionPacketHandler<>()
@@ -47,19 +47,19 @@ public abstract class PluginActionPacketHandler<T extends CustomPayload> impleme
     }
 
     @Override
-    public Identifier getPayloadChannel()
+    public ResourceLocation getPayloadChannel()
     {
         return CHANNEL;
     }
 
     @Override
-    public boolean isPlayRegistered(Identifier channel)
+    public boolean isPlayRegistered(ResourceLocation channel)
     {
         return this.registered;
     }
 
     @Override
-    public void setPlayRegistered(Identifier channel)
+    public void setPlayRegistered(ResourceLocation channel)
     {
         if (channel.equals(CHANNEL))
         {
@@ -68,7 +68,7 @@ public abstract class PluginActionPacketHandler<T extends CustomPayload> impleme
     }
 
     @Override
-    public void reset(Identifier channel)
+    public void reset(ResourceLocation channel)
     {
         if (!channel.equals(CHANNEL))
         {
@@ -82,9 +82,9 @@ public abstract class PluginActionPacketHandler<T extends CustomPayload> impleme
     {
         BlockPos pos = content.getBlockPos();
         String type = content.getType();
-        Identifier dimension = content.getDimension();
-        Identifier oldObj = content.getOldObject();
-        Identifier newObj = content.getNewObject();
+        ResourceLocation dimension = content.getDimension();
+        ResourceLocation oldObj = content.getOldObject();
+        ResourceLocation newObj = content.getNewObject();
         String source = content.getSource();
         long time = content.getTime() * 1000;
         boolean rolledBack = content.isRolledBack();
@@ -98,22 +98,22 @@ public abstract class PluginActionPacketHandler<T extends CustomPayload> impleme
         if (!additionalData.isEmpty())
         {
             try {
-                NbtCompound nbtCompound = StringNbtReader.parse(additionalData);
-                ItemStack itemStack = ItemStack.fromNbtOrEmpty(MinecraftClient.getInstance().world.getRegistryManager(), nbtCompound);
+                CompoundTag nbtCompound = TagParser.parseTag(additionalData);
+                ItemStack itemStack = ItemStack.parseOptional(Minecraft.getInstance().level.registryAccess(), nbtCompound);
 
                 if (!itemStack.isEmpty())
                 {
                     count = itemStack.getCount();
-                    id = itemStack.getRegistryEntry().getIdAsString();
-                    if (itemStack.getRegistryEntry().getIdAsString().equals("minecraft:painting")) {
-                        NbtComponent nbtComponent = itemStack.getOrDefault(DataComponentTypes.ENTITY_DATA, NbtComponent.DEFAULT);
+                    id = itemStack.getItemHolder().getRegisteredName();
+                    if (itemStack.getItemHolder().getRegisteredName().equals("minecraft:painting")) {
+                        CustomData nbtComponent = itemStack.getOrDefault(DataComponents.ENTITY_DATA, CustomData.EMPTY);
                         if (!nbtComponent.isEmpty())
                         {
-                            nbtComponent.get(PaintingEntity.VARIANT_MAP_CODEC)
+                            nbtComponent.read(Painting.VARIANT_MAP_CODEC)
                                     .result()
                                     .ifPresent(
                                             variantMap -> {
-                                                variant.set(variantMap.getIdAsString());
+                                                variant.set(variantMap.getRegisteredName());
                                             }
                                     );
                         }
@@ -154,7 +154,7 @@ public abstract class PluginActionPacketHandler<T extends CustomPayload> impleme
     }
 
     @Override
-    public void encodeWithSplitter(PacketByteBuf buf, ClientPlayNetworkHandler handler)
+    public void encodeWithSplitter(FriendlyByteBuf buf, ClientPacketListener handler)
     {
         // NO-OP
     }

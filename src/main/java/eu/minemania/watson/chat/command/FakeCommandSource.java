@@ -4,26 +4,25 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.commands.CommandSource;
+import net.minecraft.commands.CommandSourceStack;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.server.command.CommandOutput;
-import net.minecraft.server.command.ServerCommandSource;
-
-public class FakeCommandSource extends ServerCommandSource
+public class FakeCommandSource extends CommandSourceStack
 {
     private static final List<String> colors = Arrays.asList("black", "darkblue", "darkgreen", "darkaqua", "darkred", "darkpurple", "gold", "grey", "gray", "darkgrey", "darkgray", "blue", "green", "aqua", "red", "lightpurple", "yellow", "white");
     private static final List<String> styles = Arrays.asList("+", "/", "_", "-", "?");
 
-    public FakeCommandSource(ClientPlayerEntity player)
+    public FakeCommandSource(LocalPlayer player)
     {
-        super(CommandOutput.DUMMY, player.getPos(), player.getRotationClient(), null, 0, player.getName().getString(), player.getDisplayName(), null, player);
+        super(CommandSource.NULL, player.position(), player.getRotationVector(), null, 0, player.getName().getString(), player.getDisplayName(), null, player);
     }
 
     @Override
-    public Collection<String> getPlayerNames()
+    public Collection<String> getOnlinePlayerNames()
     {
-        return MinecraftClient.getInstance().getNetworkHandler().getPlayerList().stream().map(e -> e.getProfile().getName()).collect(Collectors.toList());
+        return Minecraft.getInstance().getConnection().getOnlinePlayers().stream().map(e -> e.getProfile().getName()).collect(Collectors.toList());
     }
 
     public static Collection<String> getColor()

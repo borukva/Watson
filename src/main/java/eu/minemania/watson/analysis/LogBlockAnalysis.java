@@ -22,12 +22,15 @@ import eu.minemania.watson.scheduler.tasks.AddBlockEditTask;
 import eu.minemania.watson.selection.EditSelection;
 import fi.dy.masa.malilib.util.StringUtils;
 import fi.dy.masa.malilib.util.data.Color4f;
-import net.minecraft.text.*;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 public class LogBlockAnalysis extends Analysis
 {
-    protected static final Formatting[] _COLOUR_CYCLE = new Formatting[]{Color.red.getColor(), Color.gold.getColor(), Color.yellow.getColor(), Color.green.getColor(), Color.aqua.getColor(), Color.darkpurple.getColor(), Color.lightpurple.getColor()};
+    protected static final ChatFormatting[] _COLOUR_CYCLE = new ChatFormatting[]{Color.red.getColor(), Color.gold.getColor(), Color.yellow.getColor(), Color.green.getColor(), Color.aqua.getColor(), Color.darkpurple.getColor(), Color.lightpurple.getColor()};
     protected int _colourIndex = _COLOUR_CYCLE.length - 1;
     protected static final float _COLOUR_PROXIMITY_LIMIT = 4.0f;
     protected int _lastX, _lastY, _lastZ;
@@ -100,7 +103,7 @@ public class LogBlockAnalysis extends Analysis
         addMatchedChatHandler(Configs.Analysis.LB_HEADER_BLOCK, headerHandler);
     }
 
-    void lbData(MutableText chat, Matcher m)
+    void lbData(MutableComponent chat, Matcher m)
     {
         try
         {
@@ -109,7 +112,7 @@ public class LogBlockAnalysis extends Analysis
             {
                 index = Integer.parseInt(m.group(1));
             }
-            Text sibling = chat.getSiblings().get(0);
+            Component sibling = chat.getSiblings().get(0);
             HoverEvent hover;
             if (sibling.getSiblings().isEmpty())
             {
@@ -123,7 +126,7 @@ public class LogBlockAnalysis extends Analysis
             long millis = 0;
             if (hover != null && hover.getValue(hover.getAction()) != null)
             {
-                String text = ((MutableText) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
+                String text = ((MutableComponent) hover.getValue(hover.getAction())).getString().replaceAll("\u00A7.", "");
                 millis = TimeStamp.parseTimeExpression(text, dateTime);
                 dateTime = text;
             }
@@ -159,7 +162,7 @@ public class LogBlockAnalysis extends Analysis
             int coordX = 0;
             int coordY = 0;
             int coordZ = 0;
-            MutableText teleportText = Text.translatable("watson.gui.label.blockedit.list.teleport");
+            MutableComponent teleportText = Component.translatable("watson.gui.label.blockedit.list.teleport");
             if (m.group(12) != null)
             {
                 AtomicBoolean coordTeleport = new AtomicBoolean(false);
@@ -203,12 +206,12 @@ public class LogBlockAnalysis extends Analysis
                     _expectingFirstEdit = false;
                 }
             }
-            Formatting color = Configs.Plugin.RECOLOR_QUERY_RESULTS.getBooleanValue() ? getChatColorFormat(coordX, coordY, coordZ) : null;
+            ChatFormatting color = Configs.Plugin.RECOLOR_QUERY_RESULTS.getBooleanValue() ? getChatColorFormat(coordX, coordY, coordZ) : null;
             if (Configs.Plugin.REFORMAT_QUERY_RESULTS.getBooleanValue())
             {
                 if (!type.getName().equals("minecraft:stone"))
                 {
-                    MutableText output = Text.literal("");
+                    MutableComponent output = Component.literal("");
                     if (action.equals("killed"))
                     {
                         output.append(String.format("(%2d) %s (%d,%d,%d) %s %s %s > %s ", index, dateTime, coordX, coordY, coordZ, _world, player, weapon, totalItemBlockName));
@@ -242,7 +245,7 @@ public class LogBlockAnalysis extends Analysis
         }
     }
 
-    void lbPosition(MutableText chat, Matcher m)
+    void lbPosition(MutableComponent chat, Matcher m)
     {
         if (m.group(1) != null)
         {
@@ -260,7 +263,7 @@ public class LogBlockAnalysis extends Analysis
         _expectingFirstEdit = true;
     }
 
-    void lbHeaderRatio(MutableText chat, Matcher m)
+    void lbHeaderRatio(MutableComponent chat, Matcher m)
     {
         reset();
         _parsing = true;
@@ -268,7 +271,7 @@ public class LogBlockAnalysis extends Analysis
         _beforeMinutes = Integer.parseInt(m.group(2));
     }
 
-    void lbHeaderRatioCurrent(MutableText chat, Matcher m)
+    void lbHeaderRatioCurrent(MutableComponent chat, Matcher m)
     {
         reset();
         _parsing = true;
@@ -276,7 +279,7 @@ public class LogBlockAnalysis extends Analysis
         _beforeMinutes = 0;
     }
 
-    boolean lbSum(MutableText chat, Matcher m)
+    boolean lbSum(MutableComponent chat, Matcher m)
     {
         if (_parsing)
         {
@@ -340,7 +343,7 @@ public class LogBlockAnalysis extends Analysis
         return true;
     }
 
-    void lbHeaderTimeCheck(MutableText chat, Matcher m)
+    void lbHeaderTimeCheck(MutableComponent chat, Matcher m)
     {
         String serverIP = DataManager.getServerIP();
         if (serverIP != null && ServerTime.getServerTime(serverIP) == null)
@@ -365,7 +368,7 @@ public class LogBlockAnalysis extends Analysis
         }
     }
 
-    void lbTp(MutableText chat, Matcher m)
+    void lbTp(MutableComponent chat, Matcher m)
     {
         try
         {
@@ -383,7 +386,7 @@ public class LogBlockAnalysis extends Analysis
         }
     }
 
-    void recolor(MutableText text, Formatting color)
+    void recolor(MutableComponent text, ChatFormatting color)
     {
         if (sendMessage())
         {
@@ -400,14 +403,14 @@ public class LogBlockAnalysis extends Analysis
         }
     }
 
-    boolean lbHeaderNoResults(MutableText chat, Matcher m)
+    boolean lbHeaderNoResults(MutableComponent chat, Matcher m)
     {
         boolean echo = _echoNextNoResults;
         _echoNextNoResults = true;
         return echo;
     }
 
-    void lbPage(MutableText chat, Matcher m)
+    void lbPage(MutableComponent chat, Matcher m)
     {
         int currentPage = Integer.parseInt(m.group(1));
         int pageCount = Integer.parseInt(m.group(2));
@@ -423,7 +426,7 @@ public class LogBlockAnalysis extends Analysis
         }
     }
 
-    void lbHeader(MutableText chat, Matcher m)
+    void lbHeader(MutableComponent chat, Matcher m)
     {
         Paginator.getInstance().reset();
     }
@@ -437,7 +440,7 @@ public class LogBlockAnalysis extends Analysis
         _sinceMinutes = _beforeMinutes = 0;
     }
 
-    private Formatting getChatColorFormat(int x, int y, int z)
+    private ChatFormatting getChatColorFormat(int x, int y, int z)
     {
         int dx = x - _lastX;
         int dy = y - _lastY;

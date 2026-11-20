@@ -1,42 +1,42 @@
 package eu.minemania.watson.chat.command;
 
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 
 public class WatsonCommandBase
 {
-    public static void localOutput(ServerCommandSource sender, String message)
+    public static void localOutput(CommandSourceStack sender, String message)
     {
-        sendColoredText(sender, Formatting.AQUA, message);
+        sendColoredText(sender, ChatFormatting.AQUA, message);
     }
 
-    public static void localOutputT(ServerCommandSource sender, String translationKey, Object... args)
+    public static void localOutputT(CommandSourceStack sender, String translationKey, Object... args)
     {
-        sendColoredText(sender, Formatting.AQUA, Text.translatable(translationKey, args));
+        sendColoredText(sender, ChatFormatting.AQUA, Component.translatable(translationKey, args));
     }
 
-    public static void localError(ServerCommandSource sender, String message)
+    public static void localError(CommandSourceStack sender, String message)
     {
-        sendColoredText(sender, Formatting.DARK_RED, message);
+        sendColoredText(sender, ChatFormatting.DARK_RED, message);
     }
 
-    public static void localErrorT(ServerCommandSource sender, String translationKey, Object... args)
+    public static void localErrorT(CommandSourceStack sender, String translationKey, Object... args)
     {
-        sendColoredText(sender, Formatting.DARK_RED, Text.translatable(translationKey, args));
+        sendColoredText(sender, ChatFormatting.DARK_RED, Component.translatable(translationKey, args));
     }
 
-    public static void sendColoredText(ServerCommandSource sender, Formatting color, String message)
+    public static void sendColoredText(CommandSourceStack sender, ChatFormatting color, String message)
     {
-        MutableText chat = Text.literal(message);
-        chat.formatted(color);
-        sender.sendMessage(chat);
+        MutableComponent chat = Component.literal(message);
+        chat.withStyle(color);
+        sender.sendSystemMessage(chat);
     }
 
-    public static void sendColoredText(ServerCommandSource sender, Formatting color, MutableText component)
+    public static void sendColoredText(CommandSourceStack sender, ChatFormatting color, MutableComponent component)
     {
-        component.formatted(color);
-        sender.sendMessage(component);
+        component.withStyle(color);
+        sender.sendSystemMessage(component);
     }
 }

@@ -1,6 +1,10 @@
 package eu.minemania.watson.selection;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.Tesselator;
 import eu.minemania.watson.client.Teleport;
 import eu.minemania.watson.config.Plugins;
 import eu.minemania.watson.db.BlockEdit;
@@ -9,30 +13,25 @@ import eu.minemania.watson.db.BlockEditSet;
 import eu.minemania.watson.db.PlayereditSet;
 import eu.minemania.watson.render.RenderUtils;
 import fi.dy.masa.malilib.util.WorldUtils;
-import net.minecraft.client.network.ClientPlayNetworkHandler;
-import net.minecraft.client.render.BufferRenderer;
-import net.minecraft.client.render.BuiltBuffer;
-import net.minecraft.command.argument.EntityAnchorArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
-import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import eu.minemania.watson.Watson;
 import eu.minemania.watson.chat.ChatMessage;
 import eu.minemania.watson.config.Configs;
 import eu.minemania.watson.data.DataManager;
 import fi.dy.masa.malilib.gui.Message.MessageType;
 import fi.dy.masa.malilib.util.InfoUtils;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.BufferBuilder;
-import net.minecraft.client.render.Tessellator;
-
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.TreeSet;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.EntityAnchorArgument;
+import net.minecraft.network.protocol.game.ServerboundMovePlayerPacket;
+import net.minecraft.network.protocol.game.ServerboundPlayerCommandPacket;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 public class EditSelection
 {
@@ -103,8 +102,8 @@ public class EditSelection
 
     public BlockEditSet getBlockEditSet()
     {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        PlayerEntity player = mc.player;
+        Minecraft mc = Minecraft.getInstance();
+        Player player = mc.player;
         if (player == null)
         {
             return null;
@@ -116,7 +115,7 @@ public class EditSelection
             idBuilder.append(serverIP);
         }
         idBuilder.append('/');
-        idBuilder.append(WorldUtils.getDimensionId(player.getWorld()));
+        idBuilder.append(WorldUtils.getDimensionId(player.level()));
         String id = idBuilder.toString();
 
         BlockEditSet edits = _edits.get(id);
@@ -132,24 +131,24 @@ public class EditSelection
     {
         if (_selection != null && Configs.Edits.SELECTION_SHOWN.getBooleanValue() && (DataManager.getWorldPlugin().isEmpty() || DataManager.getWorldPlugin().equals(_selection.world)))
         {
-            Tessellator tesselator = Tessellator.getInstance();
+            Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder buffer = RenderUtils.startDrawingLines(tesselator);
-            BuiltBuffer builtBuffer;
+            MeshData builtBuffer;
             RenderSystem.lineWidth(4.0F);
 
             final float halfSize = 0.3f;
             float x = _selection.x + 0.5f;
             float y = _selection.y + 0.5f;
             float z = _selection.z + 0.5f;
-            buffer.vertex(x - halfSize, y, z).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
-            buffer.vertex(x + halfSize, y, z).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
-            buffer.vertex(x, y - halfSize, z).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
-            buffer.vertex(x, y + halfSize, z).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
-            buffer.vertex(x, y, z - halfSize).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
-            buffer.vertex(x, y, z + halfSize).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
+            buffer.addVertex(x - halfSize, y, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
+            buffer.addVertex(x + halfSize, y, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
+            buffer.addVertex(x, y - halfSize, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
+            buffer.addVertex(x, y + halfSize, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
+            buffer.addVertex(x, y, z - halfSize).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
+            buffer.addVertex(x, y, z + halfSize).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
             try {
-                builtBuffer = buffer.end();
-                BufferRenderer.drawWithGlobalProgram(builtBuffer);
+                builtBuffer = buffer.buildOrThrow();
+                BufferUploader.drawWithShader(builtBuffer);
                 builtBuffer.close();
             } catch (Exception e) {
                 // Ignored
@@ -162,11 +161,11 @@ public class EditSelection
                 {
                     buffer = RenderUtils.startDrawingLines(tesselator);
                     RenderSystem.lineWidth(3.0F);
-                    buffer.vertex(previous.x + 0.5f, previous.y + 0.5f, previous.z + 0.5f).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
-                    buffer.vertex(x, y, z).color(255 / 255f, 0 / 255f, 255 / 255f, 128).normal(0, 0, 0);
+                    buffer.addVertex(previous.x + 0.5f, previous.y + 0.5f, previous.z + 0.5f).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
+                    buffer.addVertex(x, y, z).setColor(255 / 255f, 0 / 255f, 255 / 255f, 128).setNormal(0, 0, 0);
                     try {
-                        builtBuffer = buffer.end();
-                        BufferRenderer.drawWithGlobalProgram(builtBuffer);
+                        builtBuffer = buffer.buildOrThrow();
+                        BufferUploader.drawWithShader(builtBuffer);
                         builtBuffer.close();
                     } catch (Exception e) {
                         // Ignored
@@ -242,7 +241,7 @@ public class EditSelection
         }
     }
 
-    public void replay(String since, double speed, int radius, ServerCommandSource source)
+    public void replay(String since, double speed, int radius, CommandSourceStack source)
     {
         TreeSet<BlockEdit> edits = new TreeSet<>(new BlockEditComparator());
         long timing = DataManager.getTimeDiff(since);
@@ -264,8 +263,8 @@ public class EditSelection
             {
                 if (timing <= edit.time)
                 {
-                    Vec3d editPos = new Vec3d(edit.x, edit.y, edit.z);
-                    if (entity.getPos().isInRange(editPos, radius))
+                    Vec3 editPos = new Vec3(edit.x, edit.y, edit.z);
+                    if (entity.position().closerThan(editPos, radius))
                     {
                         edits.add(edit);
                     }
@@ -275,9 +274,9 @@ public class EditSelection
 
         if (!edits.isEmpty())
         {
-            MinecraftClient mc = MinecraftClient.getInstance();
-            PlayerEntity player = mc.player;
-            ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
+            Minecraft mc = Minecraft.getInstance();
+            Player player = mc.player;
+            ClientPacketListener networkHandler = mc.getConnection();
             if (player == null || networkHandler == null)
             {
                 return;
@@ -302,10 +301,10 @@ public class EditSelection
 class ReplayThread implements Runnable {
     private volatile boolean exit = false;
     private final TreeSet<BlockEdit> edits;
-    private final MinecraftClient mc;
+    private final Minecraft mc;
     private final EditSelection editSelection;
     private final double speed;
-    public ReplayThread(TreeSet<BlockEdit> edits, MinecraftClient mc, EditSelection editSelection, double speed)
+    public ReplayThread(TreeSet<BlockEdit> edits, Minecraft mc, EditSelection editSelection, double speed)
     {
         this.edits = edits;
         this.mc = mc;
@@ -321,20 +320,20 @@ class ReplayThread implements Runnable {
             }
             try
             {
-                PlayerEntity player = mc.player;
-                ClientPlayNetworkHandler networkHandler = mc.getNetworkHandler();
-                double randX = MathHelper.clamp(edit.x + player.getRandom().nextDouble() * 16.0D, edit.x - 3, edit.x + 3);
-                double randY = MathHelper.clamp(edit.y + (double) (player.getRandom().nextInt(16)), edit.y - 3, edit.y + 3);
-                double randZ = MathHelper.clamp(edit.z + player.getRandom().nextDouble() * 16.0D, edit.z - 3, edit.z + 3);
-                player.startGliding();
-                networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+                Player player = mc.player;
+                ClientPacketListener networkHandler = mc.getConnection();
+                double randX = Mth.clamp(edit.x + player.getRandom().nextDouble() * 16.0D, edit.x - 3, edit.x + 3);
+                double randY = Mth.clamp(edit.y + (double) (player.getRandom().nextInt(16)), edit.y - 3, edit.y + 3);
+                double randZ = Mth.clamp(edit.z + player.getRandom().nextDouble() * 16.0D, edit.z - 3, edit.z + 3);
+                player.startFallFlying();
+                networkHandler.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
                 Teleport.teleport(randX, randY, randZ, edit.world);
                 Thread.sleep(50L);
-                player.lookAt(EntityAnchorArgumentType.EntityAnchor.EYES, new Vec3d(edit.x, edit.y, edit.z));
-                networkHandler.sendPacket(new PlayerMoveC2SPacket.LookAndOnGround(player.getYaw(), player.getPitch(), false, false));
+                player.lookAt(EntityAnchorArgument.Anchor.EYES, new Vec3(edit.x, edit.y, edit.z));
+                networkHandler.send(new ServerboundMovePlayerPacket.Rot(player.getYRot(), player.getXRot(), false, false));
                 editSelection.selectPosition(edit.x, edit.y, edit.z, edit.world, edit.amount);
-                player.stopGliding();
-                networkHandler.sendPacket(new ClientCommandC2SPacket(player, ClientCommandC2SPacket.Mode.START_FALL_FLYING));
+                player.stopFallFlying();
+                networkHandler.send(new ServerboundPlayerCommandPacket(player, ServerboundPlayerCommandPacket.Action.START_FALL_FLYING));
                 Thread.sleep((long) (10000L / speed) - 50L);
             }
             catch (InterruptedException e)

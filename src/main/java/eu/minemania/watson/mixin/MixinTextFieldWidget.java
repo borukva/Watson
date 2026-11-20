@@ -4,9 +4,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 import eu.minemania.watson.interfaces.ITextFieldWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.gui.components.EditBox;
 
-@Mixin(TextFieldWidget.class)
+@Mixin(EditBox.class)
 public abstract class MixinTextFieldWidget implements ITextFieldWidget
 {
     @Accessor("maxLength")
